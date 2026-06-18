@@ -30,7 +30,7 @@
             <% if (equipos.length) { equipos.forEach((fila, idx) => { const dm = Number(fila.diferencia_mapas || 0); const dmClase = dm > 0 ? 'text-success fw-bold' : dm < 0 ? 'text-danger fw-bold' : 'text-gris fw-bold'; %>
               <tr>
                 <td><span class="badge-soft"><%= idx + 1 %></span></td>
-                <td class="team-name <%= teamClass(fila.nombre, fila.class_color) %>"><%= fila.nombre %></td>
+                <td class="team-name <%= teamClass(fila.nombre, fila.class_color) %>"><a href="/equipos/<%= fila.id_equipo %>" style="color: inherit"><%= fila.nombre %></a></td>
                 <td><%= fila.victorias %></td>
                 <td><%= fila.derrotas %></td>
                 <td class="<%= dmClase %>"><%= formatDM(fila.diferencia_mapas) %></td>

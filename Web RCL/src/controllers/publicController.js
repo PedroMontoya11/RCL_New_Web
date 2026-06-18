@@ -22,7 +22,7 @@ async function clasificacion(req, res, next) {
   try {
     const division = getDivision(req);
     const [rows] = await db.query(`
-      SELECT nombre, victorias, derrotas, diferencia_mapas, division
+      SELECT id_equipo, nombre, victorias, derrotas, diferencia_mapas, division
       FROM equipos
       WHERE division = ?
       ORDER BY victorias DESC, derrotas ASC, diferencia_mapas DESC, nombre ASC

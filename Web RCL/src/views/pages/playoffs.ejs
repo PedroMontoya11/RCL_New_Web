@@ -4,33 +4,72 @@
   <%- include('../partials/head', { title }) %>
 
   <style>
-    .bracket-wrapper {
+    /* Contenedor principal con buena separación vertical */
+    .brackets-container {
       display: flex;
-      justify-content: flex-start;
-      gap: 30px;
-      padding: 10px 0 20px;
-      overflow-x: auto;
+      flex-direction: column;
+      gap: 90px; 
+      padding: 20px 0;
     }
 
+    .bracket-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      color: #9d4edd;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 25px;
+      border-left: 3px solid #9d4edd;
+      padding-left: 10px;
+    }
+
+    /* CENTRADO Y ESPACIADO HORIZONTAL */
+    .bracket-wrapper {
+      display: flex;
+      justify-content: center; /* Centra todo el bloque horizontalmente si sobra espacio */
+      gap: 100px;              /* Separación a lo ancho bien amplia entre columnas */
+      overflow-x: auto;
+      padding: 20px 0;
+    }
+
+    /* Columnas simétricas actualizadas */
     .round {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      gap: 20px;
-      width: 280px;
+      justify-content: center; /* 💡 Cambiado a center para agrupar los partidos */
+      gap: 40px;               /* Controla la separación vertical entre tarjetas de una misma ronda */
+      width: 290px;
       flex-shrink: 0;
     }
 
+    /* 💡 Forzamos a que las rondas 2 y 3 suban y se alineen con el punto medio de la Ronda 1 */
+    .round:nth-child(2),
+    .round:nth-child(3) {
+      margin-top: -5px;       /* 🚀 Ajusta este número (más negativo = más arriba) hasta que lo veas perfecto */
+    }
+
     .round-label {
-      color: #d3d8ef;
+      color: #7b2cbf;
       font-size: .75rem;
       text-transform: uppercase;
       text-align: center;
       letter-spacing: .08em;
+      font-weight: bold;
+      margin-bottom: 15px;
     }
 
+    /* Tarjetas limpias de partidos (sin líneas) */
     .match-card {
       padding: 10px 14px;
+    }
+
+    .match-meta {
+      font-size: 0.65rem;
+      color: #00f5d4;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
     }
 
     .team {
@@ -45,11 +84,13 @@
 
     .team.winner {
       border-left: 4px solid var(--success);
+      background: rgba(0, 245, 212, 0.05);
     }
 
     .score {
       font-family: 'Orbitron', sans-serif;
       color: #ffd0df;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -77,49 +118,98 @@
     </div>
 
     <main class="container container-soft pb-5">
-      <section class="table-panel">
-        <div class="bracket-wrapper">
-          <div class="round">
-            <div class="round-label">Semifinales</div>
+      <section class="table-panel p-4">
+        
+        <div class="brackets-container">
+          
+          <div>
+            <div class="bracket-title">Cuadro de Ganadores (Upper Bracket)</div>
+            <div class="bracket-wrapper">
+              
+              <div class="round">
+                <div class="round-label">Upper Round 1</div>
+                
+                <div class="match-card card-glass">
+                  <div class="match-meta"><span>Match 1 (BO5)</span> <span>16:00</span></div>
+                  <div class="team winner"><span>Troncos</span><span class="score">3</span></div>
+                  <div class="team"><span>La Divina Papaya</span><span class="score">1</span></div>
+                </div>
 
-            <div class="match-card card-glass">
-              <div class="team winner">
-                <span>Seed #1</span>
-                <span class="score">2</span>
+                <div class="match-card card-glass">
+                  <div class="match-meta"><span>Match 2 (BO5)</span> <span>18:00</span></div>
+                  <div class="team winner"><span>Fnix Nest</span><span class="score">3</span></div>
+                  <div class="team"><span>Paraselene</span><span class="score">0</span></div>
+                </div>
               </div>
-              <div class="team">
-                <span>Seed #4</span>
-                <span class="score">0</span>
-              </div>
-            </div>
 
-            <div class="match-card card-glass">
-              <div class="team winner">
-                <span>Seed #2</span>
-                <span class="score">2</span>
+              <div class="round">
+                <div class="round-label">Upper Round 2</div>
+                
+                <div class="match-card card-glass">
+                  <div class="match-meta"><span>Match 5 (BO5)</span> <span>18:00</span></div>
+                  <div class="team"><span>Winner M1</span><span class="score">-</span></div>
+                  <div class="team"><span>Winner M2</span><span class="score">-</span></div>
+                </div>
               </div>
-              <div class="team">
-                <span>Seed #3</span>
-                <span class="score">1</span>
+
+              <div class="round">
+                <div class="round-label">Gran Final</div>
+                
+                <div class="match-card card-glass">
+                  <div class="match-meta"><span>Match 8 (BO5)</span></div>
+                  <div class="team"><span>Winner M5</span><span class="score">-</span></div>
+                  <div class="team"><span>Winner M7</span><span class="score">-</span></div>
+                </div>
               </div>
+
             </div>
           </div>
 
-          <div class="round">
-            <div class="round-label">Final</div>
+          <div>
+            <div class="bracket-title">Cuadro de Perdedores (Lower Bracket)</div>
+            <div class="bracket-wrapper">
+              
+              <div class="round">
+                <div class="round-label">Lower Round 1</div>
+                
+                <div class="match-card card-glass">
+                  <div class="match-meta"><span>Match 3 (BO5)</span> <span>16:00</span></div>
+                  <div class="team"><span>Seal</span><span class="score">-</span></div>
+                  <div class="team"><span>Loser M1</span><span class="score">-</span></div>
+                </div>
 
-            <div class="match-card card-glass">
-              <div class="team winner">
-                <span>Ganador Semi 1</span>
-                <span class="score">3</span>
+                <div class="match-card card-glass">
+                  <div class="match-meta"><span>Match 4 (BO5)</span> <span>18:00</span></div>
+                  <div class="team"><span>Brotes</span><span class="score">-</span></div>
+                  <div class="team"><span>Loser M2</span><span class="score">-</span></div>
+                </div>
               </div>
-              <div class="team">
-                <span>Ganador Semi 2</span>
-                <span class="score">1</span>
+
+              <div class="round">
+                <div class="round-label">Lower Round 2</div>
+                
+                <div class="match-card card-glass">
+                  <div class="match-meta"><span>Match 6 (BO5)</span></div>
+                  <div class="team"><span>Winner M3</span><span class="score">-</span></div>
+                  <div class="team"><span>Winner M4</span><span class="score">-</span></div>
+                </div>
               </div>
+
+              <div class="round">
+                <div class="round-label">Lower Round 3</div>
+                
+                <div class="match-card card-glass">
+                  <div class="match-meta"><span>Match 7 (BO5)</span></div>
+                  <div class="team"><span>Loser M5</span><span class="score">-</span></div>
+                  <div class="team"><span>Winner M6</span><span class="score">-</span></div>
+                </div>
+              </div>
+
             </div>
           </div>
+
         </div>
+
       </section>
     </main>
 
