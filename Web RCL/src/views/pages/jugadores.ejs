@@ -180,6 +180,54 @@
       color: #eef2ff;
       font-weight: 700;
     }
+
+    .role-filters{
+    display:flex;
+    gap:.75rem;
+    align-items:center;
+    margin-bottom:1rem;
+    }
+    
+    .role-filter{
+        width:48px;
+        height:48px;
+        border:none;
+        border-radius:12px;
+        background:#181a2b;
+        cursor:pointer;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        transition:.2s;
+    }
+
+    .role-filter img{
+        width:28px;
+        height:28px;
+        object-fit:contain;
+        opacity:.75;
+        transition:.2s;
+    }
+
+    .role-filter:hover{
+        background:#23253d;
+    }
+
+    .role-filter:hover img{
+        opacity:1;
+    }
+
+    .role-filter.active{
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      border-color:#fff;
+      box-shadow:0 0 16px rgba(155,89,255,.45);
+      transform:translateY(-2px);
+    }
+
+    .role-filter.active img{
+        opacity:1;
+        transform:scale(1.1);
+    }
   </style>
 </head>
 <body>
@@ -190,7 +238,6 @@
       <div class="title-container">
         <h2 id="mainTitle">Stats Jugadores · <%= division %></h2>
         <div class="small text-secondary mt-2">
-          Top pick: <%= topPick ? `${topPick.nombre} (${topPick.total})` : 'Sin datos' %> ·
           Azul <%= Number(blueWR || 0).toFixed(2) %>% ·
           Rojo <%= Number(redWR || 0).toFixed(2) %>%
         </div>
@@ -206,37 +253,14 @@
           Segunda
         </a>
       </div>
-      <!-- Hola -->
-      <div class="sort-container" id="sortContainer">
-        <label class="small d-block mb-1 text-secondary text-uppercase fw-bold">Ordenar por:</label>
-        <select class="sort-select" onchange="window.location.href='?division=<%= division %>&sort=' + this.value">
-          <option value="kda" <%= sortOption === 'kda' ? 'selected' : '' %>>KDA</option>
-          <option value="cs" <%= sortOption === 'cs' ? 'selected' : '' %>>CS/min</option>
-          <option value="dmg" <%= sortOption === 'dmg' ? 'selected' : '' %>>DMG/min</option>
-          <option value="winrate" <%= sortOption === 'winrate' ? 'selected' : '' %>>Winrate</option>
-          <option value="mvp" <%= sortOption === 'mvp' ? 'selected' : '' %>>MVPs</option>
-        </select>
-      </div>
+    
+      <div class="role-filters mb-3">
+        <% ['Top','Jungla','Mid','ADC','Support'].forEach(role => { %>
+          <button class="role-filter" data-role="<%= role %>" title="<%= role %>"><img src="<%= roleIcon(role) %>" alt="<%= role %>"></button>
+        <% }) %>
+      </div> 
     </div>
-
-    <div class="row g-3 mb-4">
-      <div class="col-md-4">
-        <div class="meta-box">
-          Top pick global: <strong><%= topPick ? topPick.nombre : 'Sin datos' %></strong>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="meta-box">
-          Winrate lado azul: <strong><%= Number(blueWR || 0).toFixed(2) %>%</strong>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="meta-box">
-          Winrate lado rojo: <strong><%= Number(redWR || 0).toFixed(2) %>%</strong>
-        </div>
-      </div>
-    </div>
-
+  
     <section class="ranking">
       <div class="players-table-wrap">
         <table class="table players-table align-middle mb-0 text-center">
@@ -246,11 +270,41 @@
               <th class="text-start">Jugador</th>
               <th>Rol</th>
               <th>Equipo</th>
-              <th>KDA</th>
-              <th>CS/min</th>
-              <th>DMG/min</th>
-              <th>Winrate</th>
-              <th>MVPs</th>
+
+              <th class="sortable" data-sort="kda"> 
+                KDA
+                <% if (sortOption === 'kda') { %>
+                  <%= order === 'desc' ? '▼' : '▲' %>
+                <% } %>
+              </th>
+
+              <th class="sortable" data-sort="cs">
+                CS/min
+                <% if (sortOption === 'cs') { %>
+                  <%= order === 'desc' ? '▼' : '▲' %>
+                <% } %>
+              </th>
+
+              <th class="sortable" data-sort="dmg">
+                DMG/min
+                <% if (sortOption === 'dmg') { %>
+                  <%= order === 'desc' ? '▼' : '▲' %>
+                <% } %>
+              </th>
+
+              <th class="sortable" data-sort="winrate">
+                Winrate
+                <% if (sortOption === 'winrate') { %>
+                  <%= order === 'desc' ? '▼' : '▲' %>
+                <% } %>
+              </th>
+
+              <th class="sortable" data-sort="mvp">
+                MVPs
+                <% if (sortOption === 'mvp') { %>
+                  <%= order === 'desc' ? '▼' : '▲' %>
+                <% } %>
+              </th>
               <th>Mapas</th>
               <th>OP.GG</th>
             </tr>
@@ -279,7 +333,7 @@
 
               const opggUrl = `https://op.gg/es/lol/summoners/euw/${encodeURIComponent(f.nombre_usuario)}-${encodeURIComponent((f.riot_tag || '').replace('#', ''))}`;
             %>
-              <tr>
+              <tr data-role="<%= f.rol %>">
                 <td><%= idx + 1 %></td>
                 <td class="text-start">
                   <%= f.nombre_usuario %>
@@ -322,7 +376,94 @@
         </table>
       </div>
     </section>
+
+    <!-- TODO DEVOLVER DESDE BACKEND UNICAMENTE LOS JUGADORES DEL ROL SELECCIONADO -->
+    <!-- Script para filtrar por rol -->
+    <script>
+      const filters = document.querySelectorAll(".role-filter");
+      const rows = document.querySelectorAll(".players-table tbody tr");
+
+      // Leer parámetros de la URL
+      const params = new URLSearchParams(window.location.search);
+      let currentRole = params.get("role") || "";
+
+      // Aplicar el filtro inicial al cargar la página
+      if (currentRole) {
+          const activeButton = document.querySelector(`.role-filter[data-role="${currentRole}"]`);
+
+          if (activeButton) {
+              activeButton.classList.add("active");
+          }
+
+          rows.forEach(row => {
+              if (!row.dataset.role) return;
+
+              row.style.display =
+                  row.dataset.role === currentRole ? "" : "none";
+          });
+      }
+
+      filters.forEach(filter => {
+        filter.addEventListener("click", function () {
+          // Si se pulsa el mismo botón, quitar el filtro
+          if (currentRole === this.dataset.role) {
+              currentRole = "";
+              filters.forEach(btn => btn.classList.remove("active"));
+          } else {
+              currentRole = this.dataset.role;
+
+              filters.forEach(btn => btn.classList.remove("active"));
+              this.classList.add("active");
+          }
+
+          // Guardar el filtro en la URL sin recargar
+          if (currentRole === "") {
+              params.delete("role");
+          } else {
+              params.set("role", currentRole);
+          }
+
+          window.history.replaceState({}, "", "?" + params.toString());
+
+          // Aplicar filtro
+          rows.forEach(row => {
+            // Ignorar filas que no representan jugadores
+            if (!row.dataset.role) return;
+            // Mostrar solo los jugadores del rol seleccionado
+            if (currentRole === "" || row.dataset.role === currentRole) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+          });
+        });
+      });
+    </script>
   </main>
+
+  <!-- Script para ordenar por estadisticas -->
+  <script>
+    document.querySelectorAll(".sortable").forEach(th => {
+      th.addEventListener("click", () => {
+          const params = new URLSearchParams(window.location.search);
+
+          const sort = th.dataset.sort;
+          const currentSort = params.get("sort");
+          const currentOrder = params.get("order") || "desc";
+
+          let newOrder = "desc";
+
+          if (currentSort === sort) {
+            newOrder = currentOrder === "desc" ? "asc" : "desc";
+          }
+
+          params.set("sort", sort);
+          params.set("order", newOrder);
+
+          window.location.search = params.toString();
+      });
+    });
+  </script>
 
   <%- include('../partials/footer') %>
 </body>

@@ -177,17 +177,19 @@ async function equipoDetalle(req, res, next) {
 async function jugadores(req, res, next) {
   try {
     const sortOption = req.query.sort || 'kda';
+    const order = req.query.order === 'asc' ? 'asc' : 'desc';
     const division = getDivision(req);
 
     const orderMap = {
-      kda: 'kda DESC, mapas DESC',
-      cs: 'cs_min DESC, mapas DESC',
-      dmg: 'dmg_min DESC, mapas DESC',
-      winrate: 'winrate DESC, mapas DESC',
-      mvp: 'total_mvps DESC, mapas DESC'
+      kda: 'kda',
+      cs: 'cs_min',
+      dmg: 'dmg_min',
+      winrate: 'winrate',
+      mvp: 'total_mvps'
     };
 
-    const orderBy = orderMap[sortOption] || orderMap.kda;
+    const column = orderMap[sortOption] || orderMap.kda;
+    const orderBy = `${column} ${order.toUpperCase()}, mapas DESC`;
 
     const [ranking] = await db.query(`
       SELECT
@@ -240,6 +242,7 @@ async function jugadores(req, res, next) {
       title: 'Jugadores',
       ranking,
       sortOption,
+      order,
       division,
       topPick,
       blueWR,
