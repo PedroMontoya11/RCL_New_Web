@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('../partials/head', { title }) %>
+
+  <style>
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    main {
+      flex: 1 0 auto;
+    }
+
+    .header-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 2rem;
+      align-items: center;
+    }
+
+    @media (min-width: 992px) {
+      .header-wrapper {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    #mainTitle {
+      font-weight: 800;
+      margin-bottom: 0;
+      position: relative;
+      display: inline-block;
+    }
+
+    #mainTitle::after {
+      content: "";
+      display: block;
+      width: 72px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      margin-top: 8px;
+      border-radius: 999px;
+    }
+
+    .ranking {
+      background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .04));
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+
+    @media (min-width: 768px) {
+      .ranking {
+        padding: 1.6rem;
+      }
+    }
+
+    .players-table-wrap {
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 18px;
+      overflow: auto;
+      background: rgba(7, 5, 20, .6);
+    }
+
+    .players-table {
+      min-width: 1080px;
+      margin: 0 !important;
+      background: transparent !important;
+    }
+
+    .players-table thead th {
+      background: rgba(255, 255, 255, .04) !important;
+      color: #f6f7ff !important;
+      font-weight: 800;
+      border-bottom: 1px solid rgba(255, 255, 255, .12) !important;
+      text-transform: uppercase;
+      font-size: .8rem;
+      letter-spacing: .08em;
+      padding: .95rem .85rem;
+    }
+
+    .players-table tbody td {
+      color: #eef2ff !important;
+      font-weight: 700;
+      border-top: 1px solid rgba(255, 255, 255, .08) !important;
+      vertical-align: middle;
+      background: transparent !important;
+      padding: .95rem .85rem;
+    }
+
+    .players-table tbody tr:nth-child(odd) {
+      background: rgba(255, 255, 255, .025);
+    }
+
+    .players-table tbody tr:hover {
+      background: rgba(124, 58, 237, .12);
+    }
+
+    .players-table .text-start {
+      color: #fff !important;
+    }
+
+    .img-rol {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .35));
+    }
+
+    .sort-select {
+      background: rgba(0, 0, 0, .35);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 12px;
+      padding: .65rem .95rem;
+      outline: none;
+      min-width: 180px;
+    }
+
+    .sort-select:focus {
+      border-color: rgba(251, 113, 133, .55);
+      box-shadow: 0 0 0 .2rem rgba(225, 29, 72, .16);
+    }
+
+    .stat-badge {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color: #fff;
+      font-weight: 800;
+      padding: 8px 12px;
+      border-radius: 12px;
+      min-width: 85px;
+      display: inline-block;
+      text-align: center;
+      box-shadow: 0 10px 22px rgba(124, 58, 237, .22);
+    }
+
+    .small.text-secondary {
+      color: var(--muted) !important;
+    }
+
+    .team-cell {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .team-cell img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .filters-row {
+      display: flex;
+      gap: .75rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .division-switch a {
+      min-width: 110px;
+    }
+
+    .meta-box {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding: 1rem 1.1rem;
+      color: #eef2ff;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container my-5">
+    <div class="header-wrapper">
+      <div class="title-container">
+        <h2 id="mainTitle">Stats Jugadores · <%= division %></h2>
+        <div class="small text-secondary mt-2">
+          Top pick: <%= topPick ? `${topPick.nombre} (${topPick.total})` : 'Sin datos' %> ·
+          Azul <%= Number(blueWR || 0).toFixed(2) %>% ·
+          Rojo <%= Number(redWR || 0).toFixed(2) %>%
+        </div>
+      </div>
+
+      <div class="division-switch d-flex gap-2 flex-wrap justify-content-center">
+        <a class="btn btn-sm division-btn <%= division === 'Primera' ? 'btn-brand' : 'btn-outline-light' %>"
+          href="/jugadores?division=Primera&sort=<%= sortOption %>">
+          Primera
+        </a>
+        <a class="btn btn-sm division-btn <%= division === 'Segunda' ? 'btn-brand' : 'btn-outline-light' %>"
+          href="/jugadores?division=Segunda&sort=<%= sortOption %>">
+          Segunda
+        </a>
+      </div>
+
+      <div class="sort-container" id="sortContainer">
+        <label class="small d-block mb-1 text-secondary text-uppercase fw-bold">Ordenar por:</label>
+        <select class="sort-select" onchange="window.location.href='?division=<%= division %>&sort=' + this.value">
+          <option value="kda" <%= sortOption === 'kda' ? 'selected' : '' %>>KDA</option>
+          <option value="cs" <%= sortOption === 'cs' ? 'selected' : '' %>>CS/min</option>
+          <option value="dmg" <%= sortOption === 'dmg' ? 'selected' : '' %>>DMG/min</option>
+          <option value="winrate" <%= sortOption === 'winrate' ? 'selected' : '' %>>Winrate</option>
+          <option value="mvp" <%= sortOption === 'mvp' ? 'selected' : '' %>>MVPs</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="meta-box">
+          Top pick global: <strong><%= topPick ? topPick.nombre : 'Sin datos' %></strong>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="meta-box">
+          Winrate lado azul: <strong><%= Number(blueWR || 0).toFixed(2) %>%</strong>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="meta-box">
+          Winrate lado rojo: <strong><%= Number(redWR || 0).toFixed(2) %>%</strong>
+        </div>
+      </div>
+    </div>
+
+    <section class="ranking">
+      <div class="players-table-wrap">
+        <table class="table players-table align-middle mb-0 text-center">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th class="text-start">Jugador</th>
+              <th>Rol</th>
+              <th>Equipo</th>
+              <th>KDA</th>
+              <th>CS/min</th>
+              <th>DMG/min</th>
+              <th>Winrate</th>
+              <th>MVPs</th>
+              <th>Mapas</th>
+              <th>OP.GG</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% ranking.forEach((f, idx) => {
+              const logo = teamLogo(f.equipo);
+              const winrate = Number(f.winrate) || 0;
+              const distance = Math.abs(winrate - 50);
+              const intensity = Math.min(distance / 50, 1);
+
+              let gradient;
+              if (winrate < 50) {
+                gradient = `linear-gradient(90deg, rgba(127,29,29,0.85), rgba(239,68,68,${0.65 + intensity * 0.35}))`;
+              } else {
+                gradient = `linear-gradient(90deg, rgba(30,58,138,0.85), rgba(59,130,246,${0.65 + intensity * 0.35}))`;
+              }
+
+              const kda = Number(f.kda) || 0;
+              let kdaGradient;
+              if (kda < 1) {
+                kdaGradient = `linear-gradient(90deg, rgba(127,29,29,0.85), rgba(239,68,68,0.95))`;
+              } else {
+                kdaGradient = `linear-gradient(90deg, var(--accent), var(--accent-2))`;
+              }
+
+              const opggUrl = `https://op.gg/es/lol/summoners/euw/${encodeURIComponent(f.nombre_usuario)}-${encodeURIComponent((f.riot_tag || '').replace('#', ''))}`;
+            %>
+              <tr>
+                <td><%= idx + 1 %></td>
+                <td class="text-start">
+                  <%= f.nombre_usuario %>
+                  <% if (f.riot_tag) { %>
+                    <div class="small text-secondary"><%= f.riot_tag %></div>
+                  <% } %>
+                </td>
+                <td>
+                  <img class="img-rol" src="<%= roleIcon(f.rol) %>" alt="<%= f.rol %>" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                </td>
+                <td>
+                  <span class="team-cell">
+                    <img src="<%= logo %>" alt="<%= f.equipo %>" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                    <span><%= f.equipo %></span>
+                  </span>
+                </td>
+                <td>
+                  <span class="stat-badge" style="background: <%= kdaGradient %>;">
+                    <%= Number(f.kda || 0).toFixed(2) %>
+                  </span>
+                </td>
+                <td><%= Number(f.cs_min || 0).toFixed(2) %></td>
+                <td><%= Number(f.dmg_min || 0).toFixed(0) %></td>
+                <td>
+                  <span class="stat-badge" style="background: <%= gradient %>;">
+                    <%= winrate.toFixed(2) %>%
+                  </span>
+                </td>
+                <td><%= f.total_mvps %></td>
+                <td><%= f.mapas %></td>
+                <td>
+                  <a class="btn btn-sm btn-outline-light" href="<%= opggUrl %>" target="_blank" rel="noreferrer">Abrir</a>
+                </td>
+              </tr>
+            <% }) %>
+            <% if (!ranking.length) { %>
+              <tr><td colspan="11">No hay estadísticas registradas en esta división.</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

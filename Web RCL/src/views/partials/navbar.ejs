@@ -1,0 +1,29 @@
+<header class="site-header">
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container container-soft">
+      <a class="navbar-brand" href="/">
+        <img src="/assets/img/liga.png" alt="Logo" width="55" height="48" class="rounded-circle">
+        <span class="brand-block">
+          <span class="brand-title">RIFT CHAMPIONS LEAGUE</span>
+          <span class="brand-subtitle">Liga amateur de League of Legends</span>
+        </span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-label="Abrir menú">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menu">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+          <li class="nav-item"><a class="nav-link <%= currentPath === '/' || currentPath === '/index' ? 'active' : '' %>" href="/">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/clasificacion') ? 'active' : '' %>" href="/clasificacion">Clasificación</a></li>
+          <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/calendario') ? 'active' : '' %>" href="/calendario">Calendario</a></li>
+          <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/equipos') ? 'active' : '' %>" href="/equipos">Equipos</a></li>
+          <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/jugadores') ? 'active' : '' %>" href="/jugadores">Jugadores</a></li>
+          <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/campeones') ? 'active' : '' %>" href="/campeones">Campeones</a></li>
+          <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/fails') ? 'active' : '' %>" href="/fails">Highlights</a></li>
+          <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/playoffs') ? 'active' : '' %>" href="/playoffs">Playoffs</a></li>
+          <li class="nav-item ms-lg-2"><a class="nav-link discord-link" href="https://discord.gg/NEyYRzCMc8" target="_blank" rel="noreferrer" title="Discord"><img src="/assets/img/discord.svg" alt="Discord" style="height:20px;"></a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>

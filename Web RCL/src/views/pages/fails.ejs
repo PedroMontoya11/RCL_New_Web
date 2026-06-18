@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><%- include('../partials/head', { title }) %></head>
+<body>
+<div class="site-shell">
+  <%- include('../partials/navbar') %>
+  <section class="page-hero compact">
+    <div class="container container-soft">
+      <div class="hero-kicker">Contenido</div>
+      <h1 class="main-title">Fails y top plays</h1>
+      <p class="page-description">Los momentos más caóticos y las jugadas más raras de la competición.</p>
+    </div>
+  </section>
+  <main class="container container-soft pb-5">
+    <section class="table-panel mb-4">
+      <h2 class="section-title">Los mejores flashes</h2>
+      <div class="row g-4">
+        <% failVideos.forEach(([file, title]) => { %>
+          <div class="col-md-6 col-xl-4"><div class="card-glass video-card h-100"><video src="/assets/video/<%= file %>" controls></video><h3 class="h5 mt-3 mb-0"><%= title %></h3></div></div>
+        <% }) %>
+      </div>
+    </section>
+    <section class="table-panel">
+      <h2 class="section-title">Top plays</h2>
+      <div class="row g-4">
+        <% topVideos.forEach(([file, title]) => { %>
+          <div class="col-md-6 col-xl-4"><div class="card-glass video-card h-100"><video src="/assets/video/<%= file %>" controls></video><h3 class="h5 mt-3 mb-0"><%= title %></h3></div></div>
+        <% }) %>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/footer') %>
+</div>
+</body>
+</html>

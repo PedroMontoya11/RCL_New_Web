@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <%- include('../../partials/head', { title }) %>
+  </head>
+  <body>
+    <%- include('../../partials/navbar') %>
+    <main class="container admin-page py-5">
+      <% if (mensaje) { %><div class="admin-message admin-message--success mx-auto mb-3" style="max-width:860px;"><%= mensaje.text %></div><% } %>
+      <div class="d-flex gap-2 justify-content-center mb-3">
+        <a class="btn btn-sm <%= division === 'Primera' ? 'btn-brand' : 'btn-outline-light' %>" href="/admin/picks-equipos?division=Primera">Primera</a>
+        <a class="btn btn-sm <%= division === 'Segunda' ? 'btn-brand' : 'btn-outline-light' %>" href="/admin/picks-equipos?division=Segunda">Segunda</a>
+      </div>
+      <section class="admin-card mx-auto" style="max-width:860px;">
+        <header class="admin-card-header text-center mb-4"><img src="/assets/img/liga.png" alt="Logo RCL" style="width:80px;height:80px;object-fit:contain;" /><h1>Registrar pick</h1><p class="text-secondary">Guarda picks de campeones asociados al equipo y al resultado final.</p></header>
+        <form method="POST" action="/admin/picks-equipos?division=<%= division %>" class="admin-form-grid">
+          <div class="admin-field"><label for="id_equipo">Equipo</label><select id="id_equipo" name="id_equipo" required><% equipos.forEach((equipo) => { %><option value="<%= equipo.id_equipo %>"><%= equipo.nombre %></option><% }) %></select></div>
+          <div class="admin-field"><label for="nombre_champ">Campeón</label><input id="nombre_champ" type="text" name="nombre_champ" placeholder="Nombre del campeón..." required /></div>
+          <div class="admin-field"><label for="resultado">Resultado final</label><select id="resultado" name="resultado"><option value="1">Victoria</option><option value="0">Derrota</option></select></div>
+          <div class="admin-actions mt-4 d-flex justify-content-between align-items-center"><a href="/admin" class="admin-back-link">← Volver al inicio</a><button type="submit" class="button">Guardar pick</button></div>
+        </form>
+      </section>
+    </main>
+    <%- include('../../partials/footer') %>
+  </body>
+</html>

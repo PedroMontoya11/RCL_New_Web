@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <%- include('../../partials/head', { title }) %>
+    <style>
+      .admin-page { padding: 3rem 0 4rem; }
+      .admin-card { max-width: 860px; margin: 0 auto; background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04)); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--shadow); padding: 2rem; }
+      .admin-card-header { text-align: center; margin-bottom: 1.5rem; }
+      .admin-card-header img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 0.8rem; }
+      .admin-card-header p { color: var(--muted); margin: 0.4rem 0 0; }
+      .admin-message { margin: 0 auto 1rem; max-width: 860px; padding: 0.95rem 1rem; border-radius: 16px; font-weight: 700; border: 1px solid transparent; }
+      .admin-message--success { background: rgba(16, 185, 129, 0.14); border-color: rgba(16, 185, 129, 0.28); color: #bbf7d0; }
+      .admin-field label { display:block; margin-bottom:0.45rem; color:#f5f7ff; font-size:0.82rem; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; }
+      .admin-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:1rem; }
+      .admin-field--full { grid-column:1 / -1; }
+      .admin-toggle-row { display:flex; justify-content:space-between; gap:1rem; margin-top:1.25rem; flex-wrap:wrap; }
+      .admin-switch { display:inline-flex; align-items:center; gap:0.65rem; color:#f5f7ff; font-weight:700; }
+      .admin-switch input { width:20px; height:20px; accent-color:var(--accent-2); }
+      .admin-fieldset { margin-top:1.25rem; padding:1rem; border-radius:18px; border:1px solid rgba(255,255,255,0.08); background:rgba(0,0,0,0.18); }
+      .admin-fieldset legend { padding:0 0.4rem; color:#fff; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; font-size:0.82rem; }
+      .admin-radio-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:0.9rem; }
+      .admin-radio-option { position:relative; }
+      .admin-radio-option input { position:absolute; opacity:0; pointer-events:none; }
+      .admin-radio-option label { display:block; padding:0.95rem 1rem; text-align:center; border-radius:14px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:#fff; font-weight:800; cursor:pointer; }
+      .admin-radio-option input:checked + label { border-color:rgba(248,113,113,0.36); box-shadow:0 0 0 2px rgba(225,29,72,0.12) inset; }
+      .admin-actions { margin-top:1.35rem; display:flex; justify-content:space-between; gap:1rem; align-items:center; }
+      .admin-back-link { color:var(--muted); }
+      @media (max-width: 800px) { .admin-grid { grid-template-columns:1fr; } .admin-radio-grid { grid-template-columns:1fr; } .admin-actions { flex-direction:column-reverse; align-items:stretch; } .admin-actions .button { width:100%; } }
+    </style>
+  </head>
+  <body>
+    <%- include('../../partials/navbar') %>
+    <main class="container admin-page">
+      <% if (mensaje) { %><div class="admin-message admin-message--success"><%= mensaje.text %></div><% } %>
+      <div class="d-flex gap-2 justify-content-center mb-3">
+        <a class="btn btn-sm <%= division === 'Primera' ? 'btn-brand' : 'btn-outline-light' %>" href="/admin/match-stats?division=Primera">Primera</a>
+        <a class="btn btn-sm <%= division === 'Segunda' ? 'btn-brand' : 'btn-outline-light' %>" href="/admin/match-stats?division=Segunda">Segunda</a>
+      </div>
+      <section class="admin-card">
+        <header class="admin-card-header"><img src="/assets/img/liga.png" alt="Logo RCL" /><h1>Registrar estadísticas</h1><p>Ahora también guarda el campeón para alimentar el popup del jugador.</p></header>
+        <form method="POST" action="/admin/match-stats?division=<%= division %>">
+          <div class="admin-field admin-field--full"><label for="id_jugador">Jugador</label><select id="id_jugador" name="id_jugador" required><% jugadores.forEach((jugador) => { %><option value="<%= jugador.id %>"><%= jugador.nombre_usuario %><%= jugador.riot_tag %> · <%= jugador.equipo %></option><% }) %></select></div>
+          <div class="admin-grid">
+            <div class="admin-field"><label for="campeon">Campeón</label><input id="campeon" type="text" name="campeon" required /></div>
+            <div class="admin-field"><label for="kills">Kills</label><input id="kills" type="number" name="kills" min="0" required /></div>
+            <div class="admin-field"><label for="deaths">Deaths</label><input id="deaths" type="number" name="deaths" min="0" required /></div>
+            <div class="admin-field"><label for="assists">Assists</label><input id="assists" type="number" name="assists" min="0" required /></div>
+            <div class="admin-field"><label for="cs">CS</label><input id="cs" type="number" name="cs" min="0" required /></div>
+            <div class="admin-field"><label for="dmg">DMG</label><input id="dmg" type="number" name="dmg" min="0" required /></div>
+            <div class="admin-field"><label for="duracion_min">Duración (min)</label><input id="duracion_min" type="number" name="duracion_min" min="1" required /></div>
+          </div>
+          <fieldset class="admin-fieldset"><legend>Lado</legend><div class="admin-radio-grid"><div class="admin-radio-option"><input id="azul" type="radio" name="lado" value="Azul" checked /><label for="azul">Azul</label></div><div class="admin-radio-option"><input id="rojo" type="radio" name="lado" value="Rojo" /><label for="rojo">Rojo</label></div></div></fieldset>
+          <div class="admin-toggle-row"><label class="admin-switch" for="win"><input id="win" type="checkbox" name="win" /> Victoria</label><label class="admin-switch" for="mvp"><input id="mvp" type="checkbox" name="mvp" /> MVP</label></div>
+          <div class="admin-actions"><a href="/admin" class="admin-back-link">← Volver al inicio</a><button type="submit" class="button">Guardar estadísticas</button></div>
+        </form>
+      </section>
+    </main>
+    <%- include('../../partials/footer') %>
+  </body>
+</html>

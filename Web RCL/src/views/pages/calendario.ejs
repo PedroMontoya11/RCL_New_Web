@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('../partials/head', { title }) %>
+  <style>
+    body { color: var(--text); }
+    .main-title { text-align: center; font-weight: 800; font-size: 2.5rem; margin-bottom: 1rem; position: relative; }
+    .main-title::after { content: ""; display: block; width: 100px; height: 5px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); margin: 15px auto 0; border-radius: 999px; }
+    .jornada-contenedor { background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .04)); border: 1px solid var(--border); border-radius: 24px; padding: 2rem; margin-bottom: 3rem; box-shadow: var(--shadow); }
+    .table-custom { width: 100%; border-collapse: separate; border-spacing: 0 14px; }
+    .table-custom tbody tr { background: rgba(255, 255, 255, .05); transition: .25s; }
+    .table-custom tbody tr:hover { background: rgba(124, 58, 237, .12); }
+    .table-custom td { padding: 22px 16px; border-top: 1px solid rgba(255, 255, 255, .08); border-bottom: 1px solid rgba(255, 255, 255, .08); vertical-align: middle; color: #fff; }
+    .table-custom td:first-child { border-left: 1px solid rgba(255, 255, 255, .08); border-top-left-radius: 18px; border-bottom-left-radius: 18px; }
+    .table-custom td:last-child { border-right: 1px solid rgba(255, 255, 255, .08); border-top-right-radius: 18px; border-bottom-right-radius: 18px; }
+    .jornada-btn { border-radius: 12px !important; padding: .8rem 1.5rem !important; font-weight: 800 !important; background: rgba(255, 255, 255, .05) !important; color: #fff !important; border: 1px solid rgba(255, 255, 255, .1) !important; }
+    .jornada-btn.active { background: linear-gradient(90deg, var(--accent), var(--accent-2)) !important; }
+    .btn-playoffs { background: linear-gradient(90deg, #f59e0b, #ef4444) !important; }
+    .equipo-flex { display: flex; align-items: center; gap: 20px; font-weight: 700; font-size: 1.2rem; }
+    .equipo-local { justify-content: flex-end; text-align: right; }
+    .equipo-visitante { justify-content: flex-start; text-align: left; }
+    .escudo-img { width: 60px; height: 45px; object-fit: contain; }
+    .text-vs { color: #f8d2df; font-weight: 900; font-size: 1.4rem; }
+    .ganador-text { color: #22c55e !important; text-shadow: 0 0 10px rgba(34, 197, 94, 0.5); font-weight: 800; }
+    .fecha-partido { display: block; font-size: 0.95rem; color: #ff3b77; font-weight: 700; margin-bottom: 5px; }
+    .fase-titulo { text-transform: uppercase; font-size: 1.1rem; color: #f59e0b; margin: 2rem 0 1rem; font-weight: 800; border-left: 4px solid #f59e0b; padding-left: 15px; }
+    .playoff-title { text-align: center; font-size: 2rem; font-weight: 800; margin-bottom: 2rem; }
+    .empty-state { text-align: center; padding: 2rem 1rem; color: var(--muted); font-weight: 700; }
+    @media (max-width: 768px) { .table-custom { min-width: 760px; } .equipo-flex { font-size: 1rem; gap: 10px; } .escudo-img { width: 40px; height: 30px; } }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="container py-5">
+    <h1 class="main-title">Calendario · <%= division %></h1>
+    <div class="mb-4 d-flex gap-2 flex-wrap justify-content-center">
+      <a class="btn btn-sm division-btn <%= division === 'Primera' ? 'btn-brand' : 'btn-outline-light' %>"
+        href="/calendario?division=Primera">
+        Primera
+      </a>
+      <a class="btn btn-sm division-btn <%= division === 'Segunda' ? 'btn-brand' : 'btn-outline-light' %>"
+        href="/calendario?division=Segunda">
+        Segunda
+      </a>
+    </div>
+    <div class="jornadas-bar mb-5 text-center">
+      <div class="d-flex flex-wrap gap-3 justify-content-center">
+        <% for (let num = 1; num <= maxRegularSeason; num++) { %>
+          <button class="btn jornada-btn" data-jornada="<%= num %>">Jornada <%= num %></button>
+        <% } %>
+        <% if (Object.keys(playoffsPorFase || {}).length) { %>
+          <button class="btn jornada-btn btn-playoffs" data-jornada="playoffs">🏆 Playoffs</button>
+        <% } %>
+      </div>
+    </div>
+    <% for (let numJornada = 1; numJornada <= maxRegularSeason; numJornada++) {
+         const partidos = calendario?.[numJornada] || [];
+    %>
+      <div class="jornada-contenedor jornada-bloque" data-jornada="<%= numJornada %>" style="display:none;">
+        <h2 class="mb-4">Fase Regular — Jornada <%= numJornada %></h2>
+        <% if (partidos.length > 0) { %>
+          <div class="table-responsive"><table class="table-custom"><tbody>
+            <% partidos.forEach((p) => { %>
+              <tr>
+                <td style="width: 40%;"><div class="equipo-flex equipo-local"><span class="<%= p.ganador_id == p.local_id ? 'ganador-text' : '' %>"><%= p.local %></span><img src="<%= teamLogo(p.local) %>" class="escudo-img" alt="<%= p.local %>" onerror="this.onerror=null; this.src='/assets/img/liga.png'"></div></td>
+                <td class="text-center" style="width: 20%;">
+                  <% if (p.fecha) { const d = new Date(p.fecha); %>
+                    <small class="fecha-partido"><%= d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }) %>, <%= String(p.hora || '--:--').slice(0, 5) %></small>
+                  <% } %>
+                  <span class="text-vs"><%= p.resultado || 'VS' %></span>
+                </td>
+                <td style="width: 40%;"><div class="equipo-flex equipo-visitante"><img src="<%= teamLogo(p.visitante) %>" class="escudo-img" alt="<%= p.visitante %>" onerror="this.onerror=null; this.src='/assets/img/liga.png'"><span class="<%= p.ganador_id == p.visitante_id ? 'ganador-text' : '' %>"><%= p.visitante %></span></div></td>
+              </tr>
+            <% }) %>
+          </tbody></table></div>
+        <% } else { %><div class="empty-state">No hay partidos para esta jornada.</div><% } %>
+      </div>
+    <% } %>
+    <% if (Object.keys(playoffsPorFase || {}).length) { %>
+      <div class="jornada-contenedor jornada-bloque" data-jornada="playoffs" style="display:none;">
+        <h2 class="playoff-title">Playoffs</h2>
+        <% Object.entries(playoffsPorFase).forEach(([fase, partidos]) => { %>
+          <div class="fase-titulo"><%= fase %></div>
+          <div class="table-responsive"><table class="table-custom"><tbody>
+            <% partidos.forEach((p) => { %>
+              <tr>
+                <td style="width: 40%;"><div class="equipo-flex equipo-local"><span class="<%= p.ganador_id == p.local_id ? 'ganador-text' : '' %>"><%= p.local %></span><img src="<%= teamLogo(p.local) %>" class="escudo-img" alt="<%= p.local %>" onerror="this.onerror=null; this.src='/assets/img/liga.png'"></div></td>
+                <td class="text-center" style="width: 20%;"><% if (p.fecha) { const d = new Date(p.fecha); %><small class="fecha-partido"><%= d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }) %>, <%= String(p.hora || '--:--').slice(0, 5) %></small><% } %><span class="text-vs"><%= p.resultado || 'VS' %></span></td>
+                <td style="width: 40%;"><div class="equipo-flex equipo-visitante"><img src="<%= teamLogo(p.visitante) %>" class="escudo-img" alt="<%= p.visitante %>" onerror="this.onerror=null; this.src='/assets/img/liga.png'"><span class="<%= p.ganador_id == p.visitante_id ? 'ganador-text' : '' %>"><%= p.visitante %></span></div></td>
+              </tr>
+            <% }) %>
+          </tbody></table></div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+  <script>
+    const buttons = Array.from(document.querySelectorAll('[data-jornada]'));
+    const blocks = Array.from(document.querySelectorAll('.jornada-bloque'));
+    function showSection(key) {
+      blocks.forEach((block) => { block.style.display = block.dataset.jornada === String(key) ? '' : 'none'; });
+      buttons.forEach((btn) => btn.classList.toggle('active', btn.dataset.jornada === String(key)));
+    }
+    if (buttons.length) showSection(buttons[0].dataset.jornada);
+    buttons.forEach((btn) => btn.addEventListener('click', () => showSection(btn.dataset.jornada)));
+  </script>
+  <%- include('../partials/footer') %>
+</body>
+</html>

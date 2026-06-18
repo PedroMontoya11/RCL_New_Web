@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><%- include('../partials/head', { title }) %></head>
+<body>
+<div class="site-shell">
+  <%- include('../partials/navbar') %>
+
+  <section class="page-hero">
+    <div class="container container-soft">
+      <div class="hero-kicker">Temporada actual</div>
+	<h1 class="hero-title slogan">
+  		<span class="conquista">Conquista.</span>
+  		<span class="domina">Domina.</span>
+  		<span class="marca">Deja tu marca.</span>
+	</h1>      
+	<p class="hero-description">Una liga competitiva donde los equipos lucharán por conquistar la Grieta del Invocador</p>
+      <div class="page-actions mt-4">
+        <a href="/clasificacion" class="btn btn-brand px-4 py-2">Ver clasificación</a>
+        <a href="/calendario" class="btn btn-outline-brand px-4 py-2">Ver calendario</a>
+      </div>
+    </div>
+  </section>
+
+  <main class="container container-soft pb-5">
+    <section class="table-panel">
+      <h2 class="section-title">Vídeos destacados</h2>
+      <div class="row g-4">
+        <% featuredVideos.forEach((video) => { %>
+          <div class="col-md-6 col-xl-4">
+            <div class="card-glass card-hover video-card h-100">
+              <video src="/assets/video/<%= video.file %>" controls></video>
+              <h3 class="h5 mt-3 mb-1"><%= video.title %></h3>
+              <p class="mb-0 text-secondary">Momento destacado de la competición.</p>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+</div>
+</body>
+</html>

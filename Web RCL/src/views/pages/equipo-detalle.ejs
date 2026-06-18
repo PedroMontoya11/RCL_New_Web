@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('../partials/head', { title }) %>
+  <style>
+    .player-trigger { width:100%; background:transparent; border:0; color:inherit; text-align:left; }
+    .player-actions { display:flex; align-items:center; gap:.65rem; }
+    .opgg-mini { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:12px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1); }
+    .opgg-mini img { width:22px; height:22px; object-fit:contain; }
+    .player-modal-list { display:flex; flex-wrap:wrap; gap:.5rem; }
+    .player-modal-list span { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1); border-radius:999px; padding:.4rem .75rem; font-weight:700; }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="container my-5">
+    <div class="perfil-header">
+      <div class="d-flex align-items-center">
+        <img src="<%= teamLogo(equipo.nombre) %>" width="105" alt="<%= equipo.nombre %>" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+        <div class="ms-3">
+          <h1 class="page-title page-title--left fw-bold text-uppercase mb-1"><%= equipo.nombre %></h1>
+          <div class="text-secondary"><%= equipo.division %></div>
+        </div>
+      </div>
+
+      <% if (opggLink) { %>
+        <a href="<%= opggLink %>" target="_blank" rel="noreferrer">
+          <img src="/assets/img/opgg-logo.webp" class="opgg-img-logo" alt="OP.GG">
+        </a>
+      <% } %>
+    </div>
+
+    <div class="main-card mb-4">
+      <h3 class="mb-4">Jugadores</h3>
+
+      <div class="row g-3">
+        <% if (jugadores.length) { %>
+          <% jugadores.forEach((row) => {
+            const nombreLimpio = row.nombre_usuario;
+            const fullRiot = `${row.nombre_usuario}${row.riot_tag}`;
+            const opggUrl = `https://op.gg/es/lol/summoners/euw/${encodeURIComponent(row.nombre_usuario)}-${encodeURIComponent((row.riot_tag || '').replace('#', ''))}`;
+          %>
+            <div class="col-md-6 col-lg-4">
+              <div class="jugador-card d-flex justify-content-between align-items-center gap-2">
+                <button
+                  type="button"
+                  class="player-trigger d-flex justify-content-between align-items-center"
+                  data-player-id="<%= row.id %>"
+                >
+                  <div class="d-flex align-items-center gap-3">
+                    <img src="<%= roleIcon(row.rol) %>" class="rol-icon" alt="<%= row.rol %>" onerror="this.onerror=null;this.src='/assets/img/liga.png';">
+                    <div>
+                      <div class="fs-5 fw-bold"><%= nombreLimpio %></div>
+                      <div class="text-secondary small"><%= row.rol %> · <%= fullRiot %></div>
+                    </div>
+                  </div>
+
+                  <div class="player-actions">
+                    <% if (row.capi && row.capi.toLowerCase().startsWith('s')) { %>
+                      <span class="badge-capi">C</span>
+                    <% } %>
+                  </div>
+                </button>
+
+                <a
+                  class="opgg-mini"
+                  href="<%= opggUrl %>"
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Ver OP.GG de <%= row.nombre_usuario %>"
+                >
+                  <img src="/assets/img/opgg-logo.webp" alt="OP.GG">
+                </a>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p class="text-muted">No se encontraron jugadores.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="main-card">
+      <h3 class="mb-4">Mejores campeones</h3>
+
+      <div class="row g-3">
+        <% if (champions.length) { %>
+          <% champions.forEach((champ) => { %>
+            <div class="col-md-4">
+              <div class="champ-card">
+                <img
+                  src="/assets/img/champs/<%= slugChampion(champ.nombre) %>.png"
+                  class="champ-img"
+                  alt="<%= champ.nombre %>"
+                  onerror="this.onerror=null;this.src='/assets/img/liga.png';"
+                >
+                <div class="flex-grow-1">
+                  <div class="fw-bold small text-uppercase"><%= champ.nombre %></div>
+                  <span class="badge-wr"><%= Number(champ.wr).toFixed(2) %>%</span>
+                </div>
+                <span class="wins-tag"><%= Number(champ.victorias) %> WINS</span>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p class="text-white" style="opacity: 80%;">No hay campeones disponibles</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="playerStatsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-white border border-secondary rounded-4">
+        <div class="modal-header border-secondary">
+          <div>
+            <h5 class="modal-title mb-1" id="playerStatsTitle">Jugador</h5>
+            <div class="small text-secondary" id="playerStatsSubtitle"></div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <div class="card-glass p-3 text-center">
+                <div class="small text-secondary">KDA</div>
+                <div class="h4 mb-0" id="playerKda">-</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card-glass p-3 text-center">
+                <div class="small text-secondary">Winrate</div>
+                <div class="h4 mb-0" id="playerWinrate">-</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card-glass p-3 text-center">
+                <div class="small text-secondary">Mapas</div>
+                <div class="h4 mb-0" id="playerMapas">-</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card-glass p-3 text-center">
+                <div class="small text-secondary">MVPs</div>
+                <div class="h4 mb-0" id="playerMvps">-</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="small text-secondary mb-2">Campeones más jugados</div>
+          <div id="playerChampions" class="player-modal-list"></div>
+
+          <a id="playerOpggLink" class="btn btn-brand mt-3" target="_blank" rel="noreferrer">Ver OP.GG</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const modalEl = document.getElementById('playerStatsModal');
+      const modal = new bootstrap.Modal(modalEl);
+
+      async function openPlayerModal(playerId) {
+        document.getElementById('playerStatsTitle').textContent = 'Cargando...';
+        document.getElementById('playerStatsSubtitle').textContent = '';
+        document.getElementById('playerKda').textContent = '-';
+        document.getElementById('playerWinrate').textContent = '-';
+        document.getElementById('playerMapas').textContent = '-';
+        document.getElementById('playerMvps').textContent = '-';
+        document.getElementById('playerChampions').innerHTML = '';
+        document.getElementById('playerOpggLink').removeAttribute('href');
+
+        modal.show();
+
+        try {
+          const res = await fetch(`/api/jugadores/${playerId}/resumen`);
+          if (!res.ok) throw new Error('Respuesta no válida');
+
+          const data = await res.json();
+
+          document.getElementById('playerStatsTitle').textContent = data.nombre_usuario || 'Jugador';
+          document.getElementById('playerStatsSubtitle').textContent = `${data.rol || '-'} · ${data.equipo || '-'} · ${data.division || '-'}`;
+          document.getElementById('playerKda').textContent = Number(data.kda || 0).toFixed(2);
+          document.getElementById('playerWinrate').textContent = `${Number(data.winrate || 0).toFixed(2)}%`;
+          document.getElementById('playerMapas').textContent = data.mapas || 0;
+          document.getElementById('playerMvps').textContent = data.mvps || 0;
+
+          const championBox = document.getElementById('playerChampions');
+          championBox.innerHTML = data.champions && data.champions.length
+            ? data.champions.map((champ) =>
+                `<span>${champ.campeon} · ${champ.partidas}J · ${Number(champ.winrate || 0).toFixed(2)}%</span>`
+              ).join('')
+            : '<span>Sin campeones registrados todavía</span>';
+
+          const link = document.getElementById('playerOpggLink');
+          if (data.opggUrl) {
+            link.href = data.opggUrl;
+          }
+        } catch (error) {
+          document.getElementById('playerStatsTitle').textContent = 'No se pudieron cargar las stats';
+          document.getElementById('playerStatsSubtitle').textContent = 'Ha ocurrido un error al obtener la información';
+        }
+      }
+
+      document.querySelectorAll('[data-player-id]').forEach((btn) => {
+        btn.addEventListener('click', () => openPlayerModal(btn.dataset.playerId));
+      });
+    });
+  </script>
+</body>
+</html>

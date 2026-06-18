@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('../partials/head', { title }) %>
+
+  <style>
+    .bracket-wrapper {
+      display: flex;
+      justify-content: flex-start;
+      gap: 30px;
+      padding: 10px 0 20px;
+      overflow-x: auto;
+    }
+
+    .round {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+      width: 280px;
+      flex-shrink: 0;
+    }
+
+    .round-label {
+      color: #d3d8ef;
+      font-size: .75rem;
+      text-transform: uppercase;
+      text-align: center;
+      letter-spacing: .08em;
+    }
+
+    .match-card {
+      padding: 10px 14px;
+    }
+
+    .team {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, .05);
+      padding: 10px 12px;
+      border-radius: 14px;
+      margin: 6px 0;
+    }
+
+    .team.winner {
+      border-left: 4px solid var(--success);
+    }
+
+    .score {
+      font-family: 'Orbitron', sans-serif;
+      color: #ffd0df;
+    }
+  </style>
+</head>
+<body>
+  <div class="site-shell">
+    <%- include('../partials/navbar') %>
+
+    <section class="page-hero compact">
+      <div class="container container-soft">
+        <div class="hero-kicker">Eliminatorias</div>
+        <h1 class="main-title">Bracket de playoffs</h1>
+      </div>
+    </section>
+
+    <div class="mb-4 d-flex gap-2 flex-wrap justify-content-center">
+      <a class="btn btn-sm division-btn <%= division === 'Primera' ? 'btn-brand' : 'btn-outline-light' %>"
+        href="/playoffs?division=Primera">
+        Primera
+      </a>
+
+      <a class="btn btn-sm division-btn <%= division === 'Segunda' ? 'btn-brand' : 'btn-outline-light' %>"
+        href="/playoffs?division=Segunda">
+        Segunda
+      </a>
+    </div>
+
+    <main class="container container-soft pb-5">
+      <section class="table-panel">
+        <div class="bracket-wrapper">
+          <div class="round">
+            <div class="round-label">Semifinales</div>
+
+            <div class="match-card card-glass">
+              <div class="team winner">
+                <span>Seed #1</span>
+                <span class="score">2</span>
+              </div>
+              <div class="team">
+                <span>Seed #4</span>
+                <span class="score">0</span>
+              </div>
+            </div>
+
+            <div class="match-card card-glass">
+              <div class="team winner">
+                <span>Seed #2</span>
+                <span class="score">2</span>
+              </div>
+              <div class="team">
+                <span>Seed #3</span>
+                <span class="score">1</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="round">
+            <div class="round-label">Final</div>
+
+            <div class="match-card card-glass">
+              <div class="team winner">
+                <span>Ganador Semi 1</span>
+                <span class="score">3</span>
+              </div>
+              <div class="team">
+                <span>Ganador Semi 2</span>
+                <span class="score">1</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+</body>
+</html>

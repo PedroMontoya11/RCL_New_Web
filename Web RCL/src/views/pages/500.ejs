@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('../partials/head', { title }) %>
+</head>
+<body>
+  <div class="site-shell">
+    <%- include('../partials/navbar') %>
+
+    <main class="container container-soft py-5">
+      <section class="page-hero compact">
+        <div class="hero-kicker">Error</div>
+        <h1 class="page-title">Algo ha fallado</h1>
+        <p class="page-description"><%= message %></p>
+
+        <div class="page-actions mt-4">
+          <a class="btn btn-brand" href="/">Volver al inicio</a>
+        </div>
+      </section>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+</body>
+</html>
