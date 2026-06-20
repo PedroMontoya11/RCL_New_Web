@@ -178,6 +178,8 @@ async function jugadores(req, res, next) {
   try {
     const sortOption = req.query.sort || 'kda';
     const order = req.query.order === 'asc' ? 'asc' : 'desc';
+    const role = req.query.role || '';
+    const team = req.query.team || '';
     const division = getDivision(req);
 
     const orderMap = {
@@ -191,6 +193,20 @@ async function jugadores(req, res, next) {
     const column = orderMap[sortOption] || orderMap.kda;
     const orderBy = `${column} ${order.toUpperCase()}, mapas DESC`;
 
+    // Construcción dinámica del WHERE
+    const where = ['e.division = ?'];
+    const queryParams = [division];
+
+    if (role) {
+        where.push('j.rol = ?');
+        queryParams.push(role);
+    }
+
+    if (team) {
+        where.push('e.nombre = ?');
+        queryParams.push(team);
+    }
+
     const [ranking] = await db.query(`
       SELECT
         j.id,
@@ -201,17 +217,31 @@ async function jugadores(req, res, next) {
         j.rol,
         COUNT(*) AS mapas,
         COALESCE(SUM(m.mvp), 0) AS total_mvps,
-        ROUND(AVG( CASE WHEN m.deaths = 0 THEN m.kills + m.assists ELSE (m.kills + m.assists) / m.deaths END), 2) AS kda,
+        ROUND(
+          AVG(
+            CASE
+              WHEN m.deaths = 0
+              THEN m.kills + m.assists
+              ELSE (m.kills + m.assists) / m.deaths
+            END
+          ), 2
+        ) AS kda,
         ROUND(SUM(m.cs) / SUM(m.duracion_min), 2) AS cs_min,
         ROUND(SUM(m.dmg) / SUM(m.duracion_min), 2) AS dmg_min,
         ROUND((SUM(m.win) / COUNT(*)) * 100, 2) AS winrate
       FROM jugadores j
       JOIN equipos e ON j.equipo_id = e.id_equipo
       JOIN match_stats m ON j.id = m.id_jugador
-      WHERE e.division = ?
-      GROUP BY j.id, j.nombre_usuario, j.riot_tag, j.rol, e.nombre, e.division
+      WHERE ${where.join(' AND ')}
+      GROUP BY
+        j.id,
+        j.nombre_usuario,
+        j.riot_tag,
+        j.rol,
+        e.nombre,
+        e.division
       ORDER BY ${orderBy}
-    `, [division]);
+    `, queryParams);
 
     const [[topPick]] = await db.query(`
       SELECT pe.nombre, COUNT(*) AS total, SUM(pe.win) AS victorias
@@ -234,15 +264,30 @@ async function jugadores(req, res, next) {
       WHERE e.division = ?
     `, [division]);
 
+    const [equipos] = await db.query(`
+      SELECT nombre
+      FROM equipos
+      WHERE division = ?
+      ORDER BY nombre ASC
+    `, [division]);
+
     const totalWins = Number(sides?.total_victorias || 0);
-    const blueWR = totalWins ? Number(((Number(sides.victorias_azul || 0) / totalWins) * 100).toFixed(2)) : 0;
-    const redWR = totalWins ? Number(((Number(sides.victorias_rojo || 0) / totalWins) * 100).toFixed(2)) : 0;
+    const blueWR = totalWins
+      ? Number(((Number(sides.victorias_azul || 0) / totalWins) * 100).toFixed(2))
+      : 0;
+
+    const redWR = totalWins
+      ? Number(((Number(sides.victorias_rojo || 0) / totalWins) * 100).toFixed(2))
+      : 0;
 
     res.render('pages/jugadores', {
       title: 'Jugadores',
       ranking,
+      equipos,
       sortOption,
       order,
+      role,
+      team,
       division,
       topPick,
       blueWR,
@@ -251,7 +296,9 @@ async function jugadores(req, res, next) {
       roleIcon,
       teamLogo
     });
-  } catch (error) { next(error); }
+  } catch (error) {
+    next(error);
+  }
 }
 
 async function campeones(req, res, next) {

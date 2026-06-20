@@ -21,17 +21,31 @@
 
     .header-wrapper {
       display: flex;
-      flex-direction: column;
-      gap: 20px;
-      margin-bottom: 2rem;
-      align-items: center;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:2rem;
+      margin-bottom:2rem; 
+    }
+    
+    .title-container{
+      display:flex;
+      flex-direction:column;
+      gap:.75rem;
     }
 
-    @media (min-width: 992px) {
-      .header-wrapper {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
+    .division-switch{
+      align-self:flex-end;
+      margin-bottom:.2rem;
+    }
+
+    @media (max-width: 991px){
+      .header-wrapper{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .division-switch{
+        width:100%;
+        justify-content:center;
       }
     }
 
@@ -52,6 +66,116 @@
       border-radius: 999px;
     }
 
+    .side-winrate{
+      display:flex;
+      align-items:center;
+      gap:1rem;
+      margin-top:.75rem;
+    }
+
+    .side-label{
+      min-width:90px;
+      font-size:.9rem;
+      font-weight:700;
+      color:#d7d9ea;
+    }
+
+    .side-label.blue{
+      text-align:right;
+    }
+
+    .side-label.red{
+      text-align:left;
+    }
+
+    .side-bar{
+      flex:1;
+      height:12px;
+      border-radius:999px;
+      overflow:hidden;
+      position:relative;
+      background:linear-gradient(90deg,#991b1b,#ef4444);
+    }
+
+    .side-bar-blue{
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#2563eb,#60a5fa);
+    }
+
+    /* Estilos botones filtro */
+    .filtros{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:2rem;
+      margin-bottom:1rem;
+    }
+
+    .button-filters{
+      display:flex;
+      gap:.75rem;
+      align-items:center;
+      margin-bottom:1rem;
+    }
+
+    .team-filters{
+      justify-content:flex-end;
+    }
+
+    @media (max-width: 992px){
+      .filtros{
+          flex-direction:column;
+          align-items:flex-start;
+          gap:1rem;
+      }
+      .team-filters{
+          justify-content:flex-start;
+      }
+    }
+    
+    .filter-btn{
+      width:48px;
+      height:48px;
+      border:none;
+      border-radius:12px;
+      background:#181a2b;
+      cursor:pointer;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      transition:.2s;
+    }
+
+    .filter-btn img{
+      width:28px;
+      height:28px;
+      object-fit:contain;
+      opacity:.75;
+      transition:.2s;
+    }
+
+    .filter-btn:hover{
+      background:#23253d;
+    }
+
+    .filter-btn:hover img{
+      opacity:1;
+    }
+
+    .filter-btn.active{
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      border-color:#fff;
+      box-shadow:0 0 16px rgba(155,89,255,.45);
+      transform:translateY(-2px);
+    }
+
+    .filter-btn.active img{
+      opacity:1;
+      transform:scale(1.1);
+    }
+
+    /* Estilos ranking */
     .ranking {
       background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .04));
       border: 1px solid var(--border);
@@ -181,52 +305,28 @@
       font-weight: 700;
     }
 
-    .role-filters{
-    display:flex;
-    gap:.75rem;
-    align-items:center;
-    margin-bottom:1rem;
-    }
-    
-    .role-filter{
-        width:48px;
-        height:48px;
-        border:none;
-        border-radius:12px;
-        background:#181a2b;
-        cursor:pointer;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        transition:.2s;
+    .sortable{
+      cursor:pointer;
+      position:relative;
+      transition:.2s;
     }
 
-    .role-filter img{
-        width:28px;
-        height:28px;
-        object-fit:contain;
-        opacity:.75;
-        transition:.2s;
+    .sortable::after{
+      content:"";
+      position:absolute;
+      left:15%;
+      bottom:6px;
+      width:70%;
+      height:2px;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      transform:scaleX(0);
+      transition:.2s;
     }
 
-    .role-filter:hover{
-        background:#23253d;
-    }
-
-    .role-filter:hover img{
-        opacity:1;
-    }
-
-    .role-filter.active{
-      background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      border-color:#fff;
-      box-shadow:0 0 16px rgba(155,89,255,.45);
-      transform:translateY(-2px);
-    }
-
-    .role-filter.active img{
-        opacity:1;
-        transform:scale(1.1);
+    .sortable:hover::after,
+    .sortable.active::after{
+      transform:scaleX(1);
     }
   </style>
 </head>
@@ -237,9 +337,21 @@
     <div class="header-wrapper">
       <div class="title-container">
         <h2 id="mainTitle">Stats Jugadores · <%= division %></h2>
-        <div class="small text-secondary mt-2">
-          Azul <%= Number(blueWR || 0).toFixed(2) %>% ·
-          Rojo <%= Number(redWR || 0).toFixed(2) %>%
+        <div class="side-winrate">
+          <span class="side-label blue">
+            Azul <strong><%= Number(blueWR || 0).toFixed(2) %>%</strong>
+          </span>
+
+          <div class="side-bar">
+            <div
+              class="side-bar-blue"
+              style="width:<%= Number(blueWR || 0).toFixed(2) %>%">
+            </div>
+          </div>
+
+          <span class="side-label red">
+            <strong><%= Number(redWR || 0).toFixed(2) %>%</strong> Rojo
+          </span>
         </div>
       </div>
 
@@ -253,16 +365,48 @@
           Segunda
         </a>
       </div>
-    
-      <div class="role-filters mb-3">
-        <% ['Top','Jungla','Mid','ADC','Support'].forEach(role => { %>
-          <button class="role-filter" data-role="<%= role %>" title="<%= role %>"><img src="<%= roleIcon(role) %>" alt="<%= role %>"></button>
-        <% }) %>
-      </div> 
+  
     </div>
+
+    <section class="filtros"> 
+      <div class="button-filters role-filters mb-3">
+        <% ['Top','Jungla','Mid','ADC','Support','Polivalente'].forEach(r => { %>
+          <button
+            class="filter-btn role-filter <%= role === r ? 'active' : '' %>"
+            data-filter="role"
+            data-value="<%= r %>"
+            title="<%= r %>">
+
+            <img src="<%= roleIcon(r) %>" alt="<%= r %>">
+          </button>
+        <% }) %>
+      </div>
+      
+      <div class="button-filters team-filters mb-3">
+        <% equipos.forEach(e => { %>
+          <button
+            class="filter-btn team-filter <%= team === e.nombre ? 'active' : '' %>"
+            data-filter="team"
+            data-value="<%= e.nombre %>"
+            title="<%= e.nombre %>">
+
+            <img src="<%= teamLogo(e.nombre) %>" alt="<%= e.nombre %>">
+          </button>
+        <% }) %>
+      </div>
+    </section>
   
     <section class="ranking">
       <div class="players-table-wrap">
+        <%
+          const sortableColumns = [
+            { key: 'kda', label: 'KDA' },
+            { key: 'cs', label: 'CS/min' },
+            { key: 'dmg', label: 'DMG/min' },
+            { key: 'winrate', label: 'Winrate' },
+            { key: 'mvp', label: 'MVPs' }
+          ];
+        %>
         <table class="table players-table align-middle mb-0 text-center">
           <thead>
             <tr>
@@ -271,171 +415,126 @@
               <th>Rol</th>
               <th>Equipo</th>
 
-              <th class="sortable" data-sort="kda"> 
-                KDA
-                <% if (sortOption === 'kda') { %>
-                  <%= order === 'desc' ? '▼' : '▲' %>
-                <% } %>
-              </th>
+              <% sortableColumns.forEach(col => { %>
+                <th class="sortable" data-sort="<%= col.key %>">
+                  <%= col.label %>
+                  <% if (sortOption === col.key) { %>
+                    <%= order === 'desc' ? '▼' : '▲' %>
+                  <% } %>
+                </th>
+              <% }) %>
 
-              <th class="sortable" data-sort="cs">
-                CS/min
-                <% if (sortOption === 'cs') { %>
-                  <%= order === 'desc' ? '▼' : '▲' %>
-                <% } %>
-              </th>
-
-              <th class="sortable" data-sort="dmg">
-                DMG/min
-                <% if (sortOption === 'dmg') { %>
-                  <%= order === 'desc' ? '▼' : '▲' %>
-                <% } %>
-              </th>
-
-              <th class="sortable" data-sort="winrate">
-                Winrate
-                <% if (sortOption === 'winrate') { %>
-                  <%= order === 'desc' ? '▼' : '▲' %>
-                <% } %>
-              </th>
-
-              <th class="sortable" data-sort="mvp">
-                MVPs
-                <% if (sortOption === 'mvp') { %>
-                  <%= order === 'desc' ? '▼' : '▲' %>
-                <% } %>
-              </th>
               <th>Mapas</th>
               <th>OP.GG</th>
             </tr>
           </thead>
+
           <tbody>
             <% ranking.forEach((f, idx) => {
               const logo = teamLogo(f.equipo);
+
               const winrate = Number(f.winrate) || 0;
-              const distance = Math.abs(winrate - 50);
-              const intensity = Math.min(distance / 50, 1);
-
-              let gradient;
-              if (winrate < 50) {
-                gradient = `linear-gradient(90deg, rgba(127,29,29,0.85), rgba(239,68,68,${0.65 + intensity * 0.35}))`;
-              } else {
-                gradient = `linear-gradient(90deg, rgba(30,58,138,0.85), rgba(59,130,246,${0.65 + intensity * 0.35}))`;
-              }
-
               const kda = Number(f.kda) || 0;
-              let kdaGradient;
-              if (kda < 1) {
-                kdaGradient = `linear-gradient(90deg, rgba(127,29,29,0.85), rgba(239,68,68,0.95))`;
-              } else {
-                kdaGradient = `linear-gradient(90deg, var(--accent), var(--accent-2))`;
-              }
 
-              const opggUrl = `https://op.gg/es/lol/summoners/euw/${encodeURIComponent(f.nombre_usuario)}-${encodeURIComponent((f.riot_tag || '').replace('#', ''))}`;
+              const winrateGradient =
+                winrate < 50
+                  ? `linear-gradient(90deg, rgba(127,29,29,.85), rgba(239,68,68,${0.65 + Math.min(Math.abs(winrate-50)/50,1)*0.35}))`
+                  : `linear-gradient(90deg, rgba(30,58,138,.85), rgba(59,130,246,${0.65 + Math.min(Math.abs(winrate-50)/50,1)*0.35}))`;
+
+
+              const kdaGradient =
+                kda < 1
+                  ? 'linear-gradient(90deg, rgba(127,29,29,.85), rgba(239,68,68,.95))'
+                  : 'linear-gradient(90deg, var(--accent), var(--accent-2))';
+
+              const opggUrl = `https://op.gg/es/lol/summoners/euw/${encodeURIComponent(f.nombre_usuario)}-${encodeURIComponent((f.riot_tag || '').replace('#',''))}`;
             %>
               <tr data-role="<%= f.rol %>">
                 <td><%= idx + 1 %></td>
+
                 <td class="text-start">
                   <%= f.nombre_usuario %>
                   <% if (f.riot_tag) { %>
                     <div class="small text-secondary"><%= f.riot_tag %></div>
                   <% } %>
                 </td>
+
                 <td>
-                  <img class="img-rol" src="<%= roleIcon(f.rol) %>" alt="<%= f.rol %>" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                  <img
+                    class="img-rol"
+                    src="<%= roleIcon(f.rol) %>"
+                    alt="<%= f.rol %>"
+                    onerror="this.onerror=null; this.src='/assets/img/liga.png'"
+                  >
                 </td>
+
                 <td>
                   <span class="team-cell">
-                    <img src="<%= logo %>" alt="<%= f.equipo %>" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                    <img
+                      src="<%= logo %>"
+                      alt="<%= f.equipo %>"
+                      onerror="this.onerror=null; this.src='/assets/img/liga.png'"
+                    >
                     <span><%= f.equipo %></span>
                   </span>
                 </td>
+
                 <td>
-                  <span class="stat-badge" style="background: <%= kdaGradient %>;">
-                    <%= Number(f.kda || 0).toFixed(2) %>
+                  <span class="stat-badge" style="background:<%= kdaGradient %>;">
+                    <%= kda.toFixed(2) %>
                   </span>
                 </td>
-                <td><%= Number(f.cs_min || 0).toFixed(2) %></td>
-                <td><%= Number(f.dmg_min || 0).toFixed(0) %></td>
+
+                <td><%= Number(f.cs_min).toFixed(2) %></td>
+
+                <td><%= Number(f.dmg_min).toFixed(0) %></td>
+
                 <td>
-                  <span class="stat-badge" style="background: <%= gradient %>;">
+                  <span class="stat-badge" style="background:<%= winrateGradient %>;">
                     <%= winrate.toFixed(2) %>%
                   </span>
                 </td>
+
                 <td><%= f.total_mvps %></td>
+
                 <td><%= f.mapas %></td>
+
                 <td>
-                  <a class="btn btn-sm btn-outline-light" href="<%= opggUrl %>" target="_blank" rel="noreferrer">Abrir</a>
+                  <a
+                    class="btn btn-sm btn-outline-light"
+                    href="<%= opggUrl %>"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Abrir
+                  </a>
                 </td>
               </tr>
             <% }) %>
             <% if (!ranking.length) { %>
-              <tr><td colspan="11">No hay estadísticas registradas en esta división.</td></tr>
+              <tr><td colspan="11">No hay estadísticas registradas</td></tr>
             <% } %>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- TODO DEVOLVER DESDE BACKEND UNICAMENTE LOS JUGADORES DEL ROL SELECCIONADO -->
-    <!-- Script para filtrar por rol -->
+    <!-- Script para filtrar por rol o equipo -->
     <script>
-      const filters = document.querySelectorAll(".role-filter");
-      const rows = document.querySelectorAll(".players-table tbody tr");
+      document.querySelectorAll(".filter-btn").forEach(button => {
+        button.addEventListener("click", () => {
+          const params = new URLSearchParams(window.location.search);
 
-      // Leer parámetros de la URL
-      const params = new URLSearchParams(window.location.search);
-      let currentRole = params.get("role") || "";
+          const filter = button.dataset.filter;
+          const value = button.dataset.value;
 
-      // Aplicar el filtro inicial al cargar la página
-      if (currentRole) {
-          const activeButton = document.querySelector(`.role-filter[data-role="${currentRole}"]`);
-
-          if (activeButton) {
-              activeButton.classList.add("active");
-          }
-
-          rows.forEach(row => {
-              if (!row.dataset.role) return;
-
-              row.style.display =
-                  row.dataset.role === currentRole ? "" : "none";
-          });
-      }
-
-      filters.forEach(filter => {
-        filter.addEventListener("click", function () {
-          // Si se pulsa el mismo botón, quitar el filtro
-          if (currentRole === this.dataset.role) {
-              currentRole = "";
-              filters.forEach(btn => btn.classList.remove("active"));
+          if (params.get(filter) === value) {
+              params.delete(filter);
           } else {
-              currentRole = this.dataset.role;
-
-              filters.forEach(btn => btn.classList.remove("active"));
-              this.classList.add("active");
+              params.set(filter, value);
           }
 
-          // Guardar el filtro en la URL sin recargar
-          if (currentRole === "") {
-              params.delete("role");
-          } else {
-              params.set("role", currentRole);
-          }
-
-          window.history.replaceState({}, "", "?" + params.toString());
-
-          // Aplicar filtro
-          rows.forEach(row => {
-            // Ignorar filas que no representan jugadores
-            if (!row.dataset.role) return;
-            // Mostrar solo los jugadores del rol seleccionado
-            if (currentRole === "" || row.dataset.role === currentRole) {
-                row.style.display = "";
-            } else {
-                row.style.display = "none";
-            }
-          });
+          window.location.search = params.toString();
         });
       });
     </script>
