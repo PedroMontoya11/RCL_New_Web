@@ -4,93 +4,224 @@
   <%- include('../partials/head', { title }) %>
 
   <style>
-    /* Contenedor principal con buena separación vertical */
-    .brackets-container {
+    /* ===== HERO / TÍTULO ===== */
+    .bracket-hero {
+      text-align: left;
+      padding: 30px 0 10px;
+    }
+    .bracket-hero .kicker {
+      font-family: 'Orbitron', sans-serif;
+      color: #fff;
+      letter-spacing: .25em;
+      font-size: .85rem;
+      text-transform: uppercase;
+    }
+    .bracket-hero h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.2rem;
+      color: #00f5d4;
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: .02em;
+      margin: 0;
+      line-height: 1.1;
+    }
+
+    /* ===== CONTENEDOR GENERAL ===== */
+    .bracket-rows {
       display: flex;
       flex-direction: column;
-      gap: 90px; 
-      padding: 20px 0;
+      align-items: center;
+      gap: 140px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 40px;
     }
 
-    .bracket-title {
+    .bracket-section {
+      display: flex;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .bracket-side-label {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
       font-family: 'Orbitron', sans-serif;
-      font-size: 0.9rem;
-      color: #9d4edd;
+      font-size: .7rem;
+      letter-spacing: .2em;
+      color: #00f5d4;
       text-transform: uppercase;
-      letter-spacing: 0.15em;
-      margin-bottom: 25px;
-      border-left: 3px solid #9d4edd;
-      padding-left: 10px;
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      flex-shrink: 0;
+      margin-right: 30px;
     }
 
-    /* CENTRADO Y ESPACIADO HORIZONTAL */
     .bracket-wrapper {
       display: flex;
-      justify-content: center; /* Centra todo el bloque horizontalmente si sobra espacio */
-      gap: 100px;              /* Separación a lo ancho bien amplia entre columnas */
-      overflow-x: auto;
-      padding: 20px 0;
+      align-items: stretch;
+      gap: 80px;
     }
 
-    /* Columnas simétricas actualizadas */
+    /* ===== COLUMNAS DE RONDA ===== */
     .round {
       display: flex;
       flex-direction: column;
-      justify-content: center; /* 💡 Cambiado a center para agrupar los partidos */
-      gap: 40px;               /* Controla la separación vertical entre tarjetas de una misma ronda */
-      width: 290px;
+      justify-content: center;
+      gap: 56px;
+      width: 300px;
       flex-shrink: 0;
     }
 
-    /* 💡 Forzamos a que las rondas 2 y 3 suban y se alineen con el punto medio de la Ronda 1 */
-    .round:nth-child(2),
-    .round:nth-child(3) {
-      margin-top: -5px;       /* 🚀 Ajusta este número (más negativo = más arriba) hasta que lo veas perfecto */
+    .label-block {
+      height: 56px;
+      margin-bottom: 0;
     }
 
-    .round-label {
-      color: #7b2cbf;
-      font-size: .75rem;
+    .round-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: .85rem;
+      letter-spacing: .12em;
       text-transform: uppercase;
-      text-align: center;
-      letter-spacing: .08em;
-      font-weight: bold;
-      margin-bottom: 15px;
+      color: #fff;
+      line-height: 1.2;
+      height: 22px;
+    }
+    .round-title.spacer {
+      visibility: hidden;
     }
 
-    /* Tarjetas limpias de partidos (sin líneas) */
-    .match-card {
-      padding: 10px 14px;
+    .match-id {
+      display: block;
+      font-size: .7rem;
+      color: #aaa;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      height: 16px;
+      margin-top: 6px;
     }
-
-    .match-meta {
-      font-size: 0.65rem;
+    .match-id .bo {
       color: #00f5d4;
-      text-transform: uppercase;
-      margin-bottom: 4px;
+    }
+
+    /* ===== TARJETAS DE EQUIPOS ===== */
+    .match-card {
+      position: relative;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
+      height: 112px;
     }
 
     .team {
+      flex: 1;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(255, 255, 255, .05);
-      padding: 10px 12px;
-      border-radius: 14px;
-      margin: 6px 0;
+      padding: 0 18px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #cfcfcf;
+      text-transform: uppercase;
+      background: none;
+      border-radius: 0;
+      border-bottom: 1px solid rgba(255,255,255,.2);
+    }
+
+    .team:last-child {
+      border-bottom: none;
     }
 
     .team.winner {
-      border-left: 4px solid var(--success);
-      background: rgba(0, 245, 212, 0.05);
+      color: #fff;
     }
 
     .score {
       font-family: 'Orbitron', sans-serif;
-      color: #ffd0df;
-      font-weight: bold;
+      color: #00f5d4;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-left: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ===== ICONO + NOMBRE DEL EQUIPO ===== */
+    .team-icon {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .team-name {
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    /* ============================================================
+       LÍNEAS CONECTORAS
+       ============================================================ */
+    .match-card.line-out::after {
+      content: '';
+      position: absolute;
+      top: 56px;
+      right: -80px;
+      width: 80px;
+      height: 1px;
+      background: rgba(255,255,255,.3);
+    }
+
+    .bracket-pair {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 56px;
+    }
+
+    .bracket-pair .match-card::after {
+      content: '';
+      position: absolute;
+      top: 56px;
+      right: -40px;
+      width: 40px;
+      height: 1px;
+      background: rgba(255,255,255,.3);
+    }
+
+    .bracket-pair::after {
+      content: '';
+      position: absolute;
+      top: 112px;
+      height: 224px;
+      right: -40px;
+      width: 1px;
+      background: rgba(255,255,255,.3);
+    }
+
+    .bracket-pair::before {
+      content: '';
+      position: absolute;
+      top: 224px;
+      right: -80px;
+      width: 40px;
+      height: 1px;
+      background: rgba(255,255,255,.3);
+    }
+
+    @media (max-width: 1100px) {
+      .bracket-wrapper {
+        flex-wrap: wrap;
+        gap: 60px;
+      }
     }
   </style>
 </head>
@@ -98,117 +229,453 @@
   <div class="site-shell">
     <%- include('../partials/navbar') %>
 
-    <section class="page-hero compact">
+    <section class="page-hero compact bracket-hero">
       <div class="container container-soft">
-        <div class="hero-kicker">Eliminatorias</div>
-        <h1 class="main-title">Bracket de playoffs</h1>
+        <div class="kicker">Spring and Summer Split</div>
+        <h1>2026 Playoff Bracket</h1>
       </div>
     </section>
 
     <div class="mb-4 d-flex gap-2 flex-wrap justify-content-center">
       <a class="btn btn-sm division-btn <%= division === 'Primera' ? 'btn-brand' : 'btn-outline-light' %>"
-        href="/playoffs?division=Primera">
-        Primera
-      </a>
-
+        href="/playoffs?division=Primera">Primera</a>
       <a class="btn btn-sm division-btn <%= division === 'Segunda' ? 'btn-brand' : 'btn-outline-light' %>"
-        href="/playoffs?division=Segunda">
-        Segunda
-      </a>
+        href="/playoffs?division=Segunda">Segunda</a>
     </div>
 
-    <main class="container container-soft pb-5">
+    <main class="container-fluid pb-5">
       <section class="table-panel p-4">
-        
-        <div class="brackets-container">
-          
-          <div>
-            <div class="bracket-title">Cuadro de Ganadores (Upper Bracket)</div>
-            <div class="bracket-wrapper">
-              
-              <div class="round">
-                <div class="round-label">Upper Round 1</div>
-                
-                <div class="match-card card-glass">
-                  <div class="match-meta"><span>Match 1 (BO5)</span> <span>16:00</span></div>
-                  <div class="team winner"><span>Troncos</span><span class="score">3</span></div>
-                  <div class="team"><span>La Divina Papaya</span><span class="score">1</span></div>
+
+        <% if (division === 'Primera') { %>
+
+          <!-- ======================================================
+               BRACKET DIVISIÓN PRIMERA
+               (rellena aquí los equipos/resultados reales de Primera)
+               ====================================================== -->
+          <div class="bracket-rows">
+
+            <!-- ===== UPPER BRACKET ===== -->
+            <div class="bracket-section">
+              <div class="bracket-side-label">Upper Bracket</div>
+              <div class="bracket-wrapper">
+
+                <div class="round">
+                  <div class="bracket-pair">
+                    <div>
+                      <div class="label-block">
+                        <div class="round-title">Upper Round 1</div>
+                        <div class="match-id">Match 1 <span class="bo">(BO5)</span></div>
+                      </div>
+                      <div class="match-card">
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="/assets/img/liga.png" class="team-icon" alt="">
+                            Equipo 1
+                          </span>
+                        </div>
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="/assets/img/liga.png" class="team-icon" alt="">
+                            Equipo 2
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="label-block">
+                        <div class="round-title spacer">Upper Round 1</div>
+                        <div class="match-id">Match 2 <span class="bo">(BO5)</span></div>
+                      </div>
+                      <div class="match-card">
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="/assets/img/liga.png" class="team-icon" alt="">
+                            Equipo 3
+                          </span>
+                        </div>
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="/assets/img/liga.png" class="team-icon" alt="">
+                            Equipo 4
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div class="match-card card-glass">
-                  <div class="match-meta"><span>Match 2 (BO5)</span> <span>18:00</span></div>
-                  <div class="team winner"><span>Fnix Nest</span><span class="score">3</span></div>
-                  <div class="team"><span>Paraselene</span><span class="score">0</span></div>
+                <div class="round">
+                  <div>
+                    <div class="label-block">
+                      <div class="round-title">Upper Final</div>
+                      <div class="match-id">Match 5 <span class="bo">(BO5)</span></div>
+                    </div>
+                    <div class="match-card line-out">
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="/assets/img/liga.png" class="team-icon" alt="">
+                          Winner M1
+                        </span>
+                      </div>
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="/assets/img/liga.png" class="team-icon" alt="">
+                          Winner M2
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                <div class="round">
+                  <div>
+                    <div class="label-block">
+                      <div class="round-title">Split Final</div>
+                      <div class="match-id">Match 8 <span class="bo">(BO5)</span></div>
+                    </div>
+                    <div class="match-card">
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="/assets/img/liga.png" class="team-icon" alt="">
+                          Winner M5
+                        </span>
+                      </div>
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="/assets/img/liga.png" class="team-icon" alt="">
+                          Winner M7
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
-
-              <div class="round">
-                <div class="round-label">Upper Round 2</div>
-                
-                <div class="match-card card-glass">
-                  <div class="match-meta"><span>Match 5 (BO5)</span> <span>18:00</span></div>
-                  <div class="team"><span>Winner M1</span><span class="score">-</span></div>
-                  <div class="team"><span>Winner M2</span><span class="score">-</span></div>
-                </div>
-              </div>
-
-              <div class="round">
-                <div class="round-label">Gran Final</div>
-                
-                <div class="match-card card-glass">
-                  <div class="match-meta"><span>Match 8 (BO5)</span></div>
-                  <div class="team"><span>Winner M5</span><span class="score">-</span></div>
-                  <div class="team"><span>Winner M7</span><span class="score">-</span></div>
-                </div>
-              </div>
-
             </div>
+
+            <!-- ===== LOWER BRACKET ===== -->
+            <div class="bracket-section">
+              <div class="bracket-side-label">Lower Bracket</div>
+              <div class="bracket-wrapper">
+
+                <div class="round">
+                  <div class="bracket-pair">
+                    <div>
+                      <div class="label-block">
+                        <div class="round-title">Lower Round 1</div>
+                        <div class="match-id">Match 3 <span class="bo">(BO5)</span></div>
+                      </div>
+                      <div class="match-card">
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="/assets/img/liga.png" class="team-icon" alt="">
+                            Equipo 5
+                          </span>
+                        </div>
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="/assets/img/liga.png" class="team-icon" alt="">
+                            Loser M1
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="label-block">
+                        <div class="round-title spacer">Lower Round 1</div>
+                        <div class="match-id">Match 4 <span class="bo">(BO5)</span></div>
+                      </div>
+                      <div class="match-card">
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="/assets/img/liga.png" class="team-icon" alt="">
+                            Equipo 6
+                          </span>
+                        </div>
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="/assets/img/liga.png" class="team-icon" alt="">
+                            Loser M2
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="round">
+                  <div>
+                    <div class="label-block">
+                      <div class="round-title">Lower Round 2</div>
+                      <div class="match-id">Match 6 <span class="bo">(BO5)</span></div>
+                    </div>
+                    <div class="match-card line-out">
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="/assets/img/liga.png" class="team-icon" alt="">
+                          Winner M3
+                        </span>
+                      </div>
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="/assets/img/liga.png" class="team-icon" alt="">
+                          Winner M4
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="round">
+                  <div>
+                    <div class="label-block">
+                      <div class="round-title">Lower Final</div>
+                      <div class="match-id">Match 7 <span class="bo">(BO5)</span></div>
+                    </div>
+                    <div class="match-card">
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="/assets/img/liga.png" class="team-icon" alt="">
+                          Loser M5
+                        </span>
+                      </div>
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="/assets/img/liga.png" class="team-icon" alt="">
+                          Winner M6
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
           </div>
 
-          <div>
-            <div class="bracket-title">Cuadro de Perdedores (Lower Bracket)</div>
-            <div class="bracket-wrapper">
-              
-              <div class="round">
-                <div class="round-label">Lower Round 1</div>
-                
-                <div class="match-card card-glass">
-                  <div class="match-meta"><span>Match 3 (BO5)</span> <span>16:00</span></div>
-                  <div class="team"><span>Seal</span><span class="score">-</span></div>
-                  <div class="team"><span>Loser M1</span><span class="score">-</span></div>
+        <% } else { %>
+
+          <!-- ======================================================
+               BRACKET DIVISIÓN SEGUNDA
+               ====================================================== -->
+          <div class="bracket-rows">
+
+            <!-- ===== UPPER BRACKET ===== -->
+            <div class="bracket-section">
+              <div class="bracket-side-label">Upper Bracket</div>
+              <div class="bracket-wrapper">
+
+                <div class="round">
+                  <div class="bracket-pair">
+                    <div>
+                      <div class="label-block">
+                        <div class="round-title">Upper Round 1</div>
+                        <div class="match-id">Match 1 <span class="bo">(BO5)</span></div>
+                      </div>
+                      <div class="match-card">
+                        <div class="team winner">
+                          <span class="team-name">
+                            <img src="<%= teamLogo('Troncos') %>" class="team-icon" alt="Troncos" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                            Troncos
+                          </span>
+                          <span class="score">3</span>
+                        </div>
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="<%= teamLogo('La Divina Papaya') %>" class="team-icon" alt="La Divina Papaya" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                            La Divina Papaya
+                          </span>
+                          <span class="score">1</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="label-block">
+                        <div class="round-title spacer">Upper Round 1</div>
+                        <div class="match-id">Match 2 <span class="bo">(BO5)</span></div>
+                      </div>
+                      <div class="match-card">
+                        <div class="team winner">
+                          <span class="team-name">
+                            <img src="<%= teamLogo('Fénix Nest') %>" class="team-icon" alt="Fénix Nest" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                            Fénix Nest
+                          </span>
+                          <span class="score">3</span>
+                        </div>
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="<%= teamLogo('Paraselene') %>" class="team-icon" alt="Paraselene" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                            Paraselene
+                          </span>
+                          <span class="score">1</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div class="match-card card-glass">
-                  <div class="match-meta"><span>Match 4 (BO5)</span> <span>18:00</span></div>
-                  <div class="team"><span>Brotes</span><span class="score">-</span></div>
-                  <div class="team"><span>Loser M2</span><span class="score">-</span></div>
+                <div class="round">
+                  <div>
+                    <div class="label-block">
+                      <div class="round-title">Upper Final</div>
+                      <div class="match-id">Match 5 <span class="bo">(BO5)</span></div>
+                    </div>
+                    <div class="match-card line-out">
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="<%= teamLogo('Troncos') %>" class="team-icon" alt="Troncos" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                          Troncos
+                        </span>
+                        <span class="score">3</span>
+                      </div>
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="<%= teamLogo('Fénix Nest') %>" class="team-icon" alt="Fénix Nest" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                          Fénix Nest
+                        </span>
+                        <span class="score">2</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                <div class="round">
+                  <div>
+                    <div class="label-block">
+                      <div class="round-title">Split Final</div>
+                      <div class="match-id">Match 8 <span class="bo">(BO5)</span></div>
+                    </div>
+                    <div class="match-card">
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="/assets/img/liga.png" class="team-icon" alt="">
+                          Winner M5
+                        </span>
+                      </div>
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="/assets/img/liga.png" class="team-icon" alt="">
+                          Winner M7
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
-
-              <div class="round">
-                <div class="round-label">Lower Round 2</div>
-                
-                <div class="match-card card-glass">
-                  <div class="match-meta"><span>Match 6 (BO5)</span></div>
-                  <div class="team"><span>Winner M3</span><span class="score">-</span></div>
-                  <div class="team"><span>Winner M4</span><span class="score">-</span></div>
-                </div>
-              </div>
-
-              <div class="round">
-                <div class="round-label">Lower Round 3</div>
-                
-                <div class="match-card card-glass">
-                  <div class="match-meta"><span>Match 7 (BO5)</span></div>
-                  <div class="team"><span>Loser M5</span><span class="score">-</span></div>
-                  <div class="team"><span>Winner M6</span><span class="score">-</span></div>
-                </div>
-              </div>
-
             </div>
+
+            <!-- ===== LOWER BRACKET ===== -->
+            <div class="bracket-section">
+              <div class="bracket-side-label">Lower Bracket</div>
+              <div class="bracket-wrapper">
+
+                <div class="round">
+                  <div class="bracket-pair">
+                    <div>
+                      <div class="label-block">
+                        <div class="round-title">Lower Round 1</div>
+                        <div class="match-id">Match 3 <span class="bo">(BO5)</span></div>
+                      </div>
+                      <div class="match-card">
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="<%= teamLogo('La Divina Papaya') %>" class="team-icon" alt="La Divina" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                            La Divina Papaya
+                          </span>
+                          <span class="score">3</span>
+                        </div>
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="<%= teamLogo('Seal') %>" class="team-icon" alt="Seal" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                            Seal
+                          </span>
+                          <span class="score">0</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="label-block">
+                        <div class="round-title spacer">Lower Round 1</div>
+                        <div class="match-id">Match 4 <span class="bo">(BO5)</span></div>
+                      </div>
+                      <div class="match-card">
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="<%= teamLogo('Brotes') %>" class="team-icon" alt="Brotes" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                            Brotes
+                          </span>
+                          <span class="score">3</span>
+                        </div>
+                        <div class="team">
+                          <span class="team-name">
+                            <img src="<%= teamLogo('Paraselene') %>" class="team-icon" alt="Paraselene" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                            Paraselene
+                          </span>
+                          <span class="score">0</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="round">
+                  <div>
+                    <div class="label-block">
+                      <div class="round-title">Lower Round 2</div>
+                      <div class="match-id">Match 6 <span class="bo">(BO5)</span></div>
+                    </div>
+                    <div class="match-card line-out">
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="<%= teamLogo('La Divina Papaya') %>" class="team-icon" alt="La Divina" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                          La Divina Papaya
+                        </span>
+                      </div>
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="<%= teamLogo('Brotes') %>" class="team-icon" alt="Brotes" onerror="this.onerror=null; this.src='/assets/img/liga.png'">
+                          Brotes
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="round">
+                  <div>
+                    <div class="label-block">
+                      <div class="round-title">Lower Final</div>
+                      <div class="match-id">Match 7 <span class="bo">(BO5)</span></div>
+                    </div>
+                    <div class="match-card">
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="/assets/img/liga.png" class="team-icon" alt="">
+                          Loser M5
+                        </span>
+                      </div>
+                      <div class="team">
+                        <span class="team-name">
+                          <img src="/assets/img/liga.png" class="team-icon" alt="">
+                          Winner M6
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
           </div>
 
-        </div>
+        <% } %>
 
       </section>
     </main>
