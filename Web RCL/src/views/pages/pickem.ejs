@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <%- include('../partials/head', { title }) %>
+  <style>
+    body { color: var(--text); }
+
+    .main-title { text-align: center; font-weight: 800; font-size: 2.5rem; margin-bottom: 1rem; position: relative; }
+    .main-title::after { content: ""; display: block; width: 100px; height: 5px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); margin: 15px auto 0; border-radius: 999px; }
+
+    .jornada-contenedor { background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04)); border: 1px solid var(--border); border-radius: 24px; padding: 2rem; margin-bottom: 2rem; box-shadow: var(--shadow); }
+
+    .jornada-btn { border-radius: 12px !important; padding: .8rem 1.5rem !important; font-weight: 800 !important; background: rgba(255,255,255,.05) !important; color: #fff !important; border: 1px solid rgba(255,255,255,.1) !important; }
+    .jornada-btn.active { background: linear-gradient(90deg, var(--accent), var(--accent-2)) !important; color: #000 !important; }
+    .btn-playoffs { background: linear-gradient(90deg, #ff8c00, #ff4500) !important; color: #fff !important; border-color: transparent !important; }
+    .btn-playoffs.active { background: linear-gradient(90deg, #ffb347, #ff6a00) !important; color: #000 !important; box-shadow: 0 0 18px rgba(255,100,0,.5); }
+
+    /* Match row */
+    .pickem-match { display: grid; grid-template-columns: 1fr 72px 1fr; gap: .75rem; align-items: center; padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .pickem-match:last-child { border-bottom: none; padding-bottom: 0; }
+
+    /* Team card */
+    .pickem-team { position: relative; display: flex; flex-direction: column; align-items: center; gap: .4rem; padding: .85rem .6rem; border-radius: 16px; border: 2px solid rgba(255,255,255,.08); background: rgba(255,255,255,.04); text-align: center; }
+    .pickem-team input[type=radio] { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; }
+
+    .pickem-team--selectable { cursor: pointer; transition: border-color .2s, background .2s, transform .15s; }
+    .pickem-team--selectable:hover { border-color: rgba(103,0,253,.5); background: rgba(103,0,253,.1); transform: translateY(-2px); }
+
+    .pickem-team--selected { border-color: var(--accent) !important; background: rgba(103,0,253,.18) !important; box-shadow: 0 0 18px rgba(103,0,253,.3); }
+    .pickem-team--winner  { border-color: #22c55e !important; background: rgba(34,197,94,.12) !important; box-shadow: 0 0 18px rgba(34,197,94,.3); }
+    .pickem-team--wrong   { border-color: rgba(239,68,68,.35) !important; background: rgba(239,68,68,.07) !important; opacity: .6; }
+    .pickem-team--locked  { cursor: default; }
+
+    .team-logo { width: 52px; height: 38px; object-fit: contain; }
+    .team-name { font-weight: 800; font-size: .9rem; color: #fff; line-height: 1.2; }
+
+    .team-badge { display: inline-block; font-size: .68rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; padding: .18rem .5rem; border-radius: 999px; }
+    .badge-pick    { background: rgba(103,0,253,.25); color: #c4aaff; }
+    .badge-wait    { background: rgba(228,252,28,.1); color: #E4FC1C; }
+    .badge-correct { background: rgba(34,197,94,.2); color: #4ade80; }
+    .badge-wrong   { background: rgba(239,68,68,.2); color: #f87171; }
+
+    /* VS center block */
+    .pickem-vs-block { text-align: center; }
+    .pickem-fecha { display: block; font-size: .75rem; color: #1FEEFF; font-weight: 700; margin-bottom: .25rem; white-space: nowrap; }
+    .pickem-vs    { display: block; color: #fff; font-weight: 900; font-size: 1.1rem; }
+    .pickem-lock  { display: block; font-size: .7rem; font-weight: 800; margin-top: .25rem; }
+    .pickem-lock--open   { color: #22c55e; }
+    .pickem-lock--closed { color: #E4FC1C; }
+
+    /* Login CTA */
+    .pickem-login-cta { background: linear-gradient(180deg, rgba(103,0,253,.12), rgba(103,0,253,.05)); border: 1px solid rgba(103,0,253,.3); border-radius: 20px; padding: 2rem; text-align: center; margin-bottom: 2.5rem; }
+    .pickem-login-cta p { color: var(--muted); margin-bottom: 1rem; }
+
+    /* Sticky save bar */
+    .pickem-save-bar { position: sticky; bottom: 1.5rem; display: flex; justify-content: center; pointer-events: none; margin-top: 1.5rem; z-index: 10; }
+    .pickem-save-btn { pointer-events: all; padding: .75rem 2.5rem; font-size: 1rem; font-weight: 800; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #000; border: none; cursor: pointer; box-shadow: 0 8px 28px rgba(103,0,253,.45); transition: transform .15s, box-shadow .15s; }
+    .pickem-save-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(103,0,253,.65); }
+
+    .pickem-resultado { display: block; color: #22c55e; font-weight: 900; font-size: 1.15rem; text-shadow: 0 0 10px rgba(34,197,94,.4); }
+
+    .fase-titulo { text-transform: uppercase; font-size: .95rem; color: #E4FC1C; margin: 1.5rem 0 .75rem; font-weight: 800; border-left: 4px solid #E4FC1C; padding-left: 12px; }
+
+    /* Bonus picks tab button */
+    .btn-bonus { background: linear-gradient(90deg, #f5c518, #f59e0b) !important; color: #000 !important; border-color: transparent !important; }
+    .btn-bonus.active { background: linear-gradient(90deg, #fde68a, #fbbf24) !important; color: #000 !important; box-shadow: 0 0 18px rgba(245,197,24,.5); }
+
+    /* Bonus cards grid */
+    .bonus-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem; }
+    .bonus-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; transition: border-color .2s, transform .15s; }
+    .bonus-card:hover { border-color: rgba(245,197,24,.4); transform: translateY(-2px); }
+    .bonus-card__imgwrap { height: 130px; background: rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; }
+    .bonus-card__img { width: 80px; height: 80px; object-fit: contain; border-radius: 10px; }
+    .bonus-card__body { padding: 1rem; flex: 1; display: flex; flex-direction: column; gap: .65rem; }
+    .bonus-card__icon { font-size: 1.2rem; text-align: center; }
+    .bonus-card__question { font-size: .82rem; font-weight: 700; color: var(--muted); text-align: center; margin: 0; line-height: 1.35; }
+    .bonus-card__current { font-size: .8rem; font-weight: 800; color: #f5c518; text-align: center; min-height: 1.2em; }
+    .bonus-select { width: 100%; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15); color: #fff; border-radius: 10px; padding: .45rem .65rem; font-size: .8rem; font-weight: 700; cursor: pointer; }
+    .bonus-select:focus { outline: none; border-color: #f5c518; box-shadow: 0 0 0 3px rgba(245,197,24,.2); }
+    .bonus-select option { background: #1a1a2e; color: #fff; }
+
+    @media (max-width: 576px) {
+      .pickem-match { grid-template-columns: 1fr 56px 1fr; gap: .4rem; }
+      .team-logo { width: 36px; height: 26px; }
+      .team-name { font-size: .78rem; }
+      .pickem-team { padding: .65rem .35rem; border-radius: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="container py-5">
+    <h1 class="main-title">Pick'Em</h1>
+
+    <% if (!discordUser) { %>
+      <div class="pickem-login-cta">
+        <p>Inicia sesión con Discord para hacer tus predicciones.</p>
+        <a class="button" href="/auth/discord">
+          <img src="/assets/img/discord.svg" alt="" style="height:18px;margin-right:6px;vertical-align:middle;">
+          Acceder con Discord
+        </a>
+      </div>
+    <% } %>
+
+    <div class="mb-5 text-center">
+      <div class="d-flex flex-wrap gap-3 justify-content-center">
+        <% gruposOrder.forEach(function(key) {
+             const isPlayoff = isNaN(Number(key));
+             const hasOpen   = grupos[key].some(function(m) { return !m.is_locked; });
+        %>
+          <button class="btn jornada-btn <%= isPlayoff ? 'btn-playoffs' : '' %>"
+                  data-pickem-key="<%= key %>"
+                  data-has-open="<%= hasOpen ? '1' : '0' %>">
+            <%= isPlayoff ? '🏆 ' + key : 'Jornada ' + key %>
+          </button>
+        <% }); %>
+        <button class="btn jornada-btn btn-bonus" data-pickem-key="__bonus__" data-has-open="0">
+          🎯 Bonus Picks
+        </button>
+      </div>
+    </div>
+
+    <form method="POST" action="/pickem" id="pickem-form" autocomplete="off">
+      <% gruposOrder.forEach(function(key) {
+           const isPlayoff = isNaN(Number(key));
+           const partidos  = grupos[key];
+      %>
+        <div class="jornada-contenedor pickem-section" data-pickem-key="<%= key %>" style="display:none;">
+          <h2 class="mb-4">
+            <%= isPlayoff ? 'Playoffs · ' + key : 'Fase Regular — Jornada ' + key %>
+          </h2>
+
+          <% partidos.forEach(function(m) {
+               const locked     = !!m.is_locked;
+               const predicted  = userPredictions[m.jornada_id];
+               const hasResult  = m.ganador_id != null;
+
+               function cardClass(teamId) {
+                 var c = 'pickem-team';
+                 c += locked ? ' pickem-team--locked' : ' pickem-team--selectable';
+                 if (predicted == teamId) {
+                   if (!locked)    c += ' pickem-team--selected';
+                   else if (!hasResult) c += ' pickem-team--selected';
+                   else c += (m.ganador_id == teamId) ? ' pickem-team--winner' : ' pickem-team--wrong';
+                 }
+                 return c;
+               }
+
+               function badge(teamId) {
+                 if (predicted != teamId) return '';
+                 if (!locked)    return '<span class="team-badge badge-pick">Tu pick</span>';
+                 if (!hasResult) return '<span class="team-badge badge-wait">En espera</span>';
+                 return (m.ganador_id == teamId)
+                   ? '<span class="team-badge badge-correct">✓ Acertaste</span>'
+                   : '<span class="team-badge badge-wrong">✗ Fallaste</span>';
+               }
+          %>
+            <div class="pickem-match">
+
+              <label class="<%= cardClass(m.local_id) %>">
+                <input type="radio"
+                  name="predictions[j<%= m.jornada_id %>]"
+                  value="<%= m.local_id %>"
+                  <%= predicted == m.local_id ? 'checked' : '' %>
+                  <%= locked ? 'disabled' : '' %>>
+                <img src="<%= teamLogo(m.local) %>" class="team-logo" alt="<%= m.local %>" onerror="this.onerror=null;this.src='/assets/img/liga.png'">
+                <span class="team-name"><%= m.local %></span>
+                <%- badge(m.local_id) %>
+              </label>
+
+              <div class="pickem-vs-block">
+                <% if (m.fecha) { var d = new Date(m.fecha); %>
+                  <span class="pickem-fecha"><%= d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }) %><% if (m.hora) { %><br><%= String(m.hora).slice(0,5) %><% } %></span>
+                <% } %>
+                <% if (m.resultado) { %>
+                  <span class="pickem-resultado"><%= m.resultado %></span>
+                <% } else { %>
+                  <span class="pickem-vs">VS</span>
+                <% } %>
+                <span class="pickem-lock <%= locked ? 'pickem-lock--closed' : 'pickem-lock--open' %>">
+                  <%= locked ? '🔒' : '🟢' %>
+                </span>
+              </div>
+
+              <label class="<%= cardClass(m.visitante_id) %>">
+                <input type="radio"
+                  name="predictions[j<%= m.jornada_id %>]"
+                  value="<%= m.visitante_id %>"
+                  <%= predicted == m.visitante_id ? 'checked' : '' %>
+                  <%= locked ? 'disabled' : '' %>>
+                <img src="<%= teamLogo(m.visitante) %>" class="team-logo" alt="<%= m.visitante %>" onerror="this.onerror=null;this.src='/assets/img/liga.png'">
+                <span class="team-name"><%= m.visitante %></span>
+                <%- badge(m.visitante_id) %>
+              </label>
+
+            </div>
+          <% }); %>
+        </div>
+      <% }); %>
+    </form>
+
+    <% if (discordUser && hasOpenMatches) { %>
+      <div class="pickem-save-bar" id="match-save-bar">
+        <button type="submit" form="pickem-form" class="pickem-save-btn">
+          Guardar predicciones
+        </button>
+      </div>
+    <% } %>
+
+    <!-- Bonus Picks section (outside the match predictions form) -->
+    <div class="jornada-contenedor pickem-section" data-pickem-key="__bonus__" style="display:none;">
+      <h2 class="mb-1">Bonus Picks · Playoffs</h2>
+      <p class="mb-4" style="color:var(--muted);font-size:.9rem;">Predice estadísticas destacadas de los Playoffs.</p>
+
+      <form method="POST" action="/pickem/bonus" id="bonus-form">
+        <div class="bonus-grid">
+          <% bonusQuestions.forEach(function(q) {
+               const sel = userBonusPredictions[q.id] || '';
+               let imgSrc = '/assets/img/liga.png';
+               if (sel) {
+                 if (q.type === 'champion') {
+                   imgSrc = '/assets/img/champs/' + slugChampion(sel) + '.png';
+                 } else {
+                   const fp = bonusPlayers.find(function(p) { return p.nombre_usuario === sel; });
+                   if (fp) imgSrc = teamLogo(fp.equipo);
+                 }
+               }
+          %>
+            <div class="bonus-card" data-type="<%= q.type %>">
+              <div class="bonus-card__imgwrap">
+                <img class="bonus-card__img" src="<%= imgSrc %>"
+                     onerror="this.onerror=null;this.src='/assets/img/liga.png'" alt="">
+              </div>
+              <div class="bonus-card__body">
+                <span class="bonus-card__icon"><%= q.icon %></span>
+                <p class="bonus-card__question"><%= q.label %></p>
+                <p class="bonus-card__current"><%= sel || '—' %></p>
+                <% if (discordUser) { %>
+                  <select name="bonus[q<%= q.id %>]" class="bonus-select"
+                          aria-label="<%= q.label %>">
+                    <option value="">— Elige —</option>
+                    <% if (q.type === 'player') { %>
+                      <% bonusPlayers.forEach(function(p) { %>
+                        <option value="<%= p.nombre_usuario %>"
+                                data-img="<%= teamLogo(p.equipo) %>"
+                                <%= sel === p.nombre_usuario ? 'selected' : '' %>>
+                          <%= p.nombre_usuario %> · <%= p.equipo %>
+                        </option>
+                      <% }); %>
+                    <% } else { %>
+                      <% bonusChampions.forEach(function(c) { %>
+                        <option value="<%= c %>"
+                                data-img="/assets/img/champs/<%= slugChampion(c) %>.png"
+                                <%= sel === c ? 'selected' : '' %>>
+                          <%= c %>
+                        </option>
+                      <% }); %>
+                    <% } %>
+                  </select>
+                <% } %>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </form>
+
+      <% if (discordUser) { %>
+        <div class="pickem-save-bar mt-4" style="position:static;margin-top:1.5rem;">
+          <button type="submit" form="bonus-form" class="pickem-save-btn"
+                  style="background:linear-gradient(90deg,#f5c518,#f59e0b);color:#000;">
+            Guardar Bonus Picks
+          </button>
+        </div>
+      <% } %>
+    </div>
+
+  </div>
+
+  <% if (saved) { %>
+    <div id="pickem-toast" style="position:fixed;top:5rem;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#000;font-weight:800;padding:.75rem 2rem;border-radius:999px;box-shadow:0 8px 28px rgba(103,0,253,.45);z-index:9999;opacity:1;transition:opacity .5s;">
+      ✓ Predicciones guardadas
+    </div>
+  <% } %>
+
+  <script>
+    const navBtns  = Array.from(document.querySelectorAll('[data-pickem-key]'));
+    const sections = Array.from(document.querySelectorAll('.pickem-section'));
+
+    const matchSaveBar = document.getElementById('match-save-bar');
+    function showSection(key) {
+      sections.forEach(s => s.style.display = s.dataset.pickemKey === key ? '' : 'none');
+      navBtns.forEach(b => b.classList.toggle('active', b.dataset.pickemKey === key));
+      if (matchSaveBar) matchSaveBar.style.display = key === '__bonus__' ? 'none' : '';
+    }
+
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    let defaultBtn;
+    if (urlTab === 'bonus') {
+      defaultBtn = navBtns.find(b => b.dataset.pickemKey === '__bonus__');
+    }
+    if (!defaultBtn) {
+      defaultBtn = navBtns.find(b => b.dataset.hasOpen === '1') || navBtns[navBtns.length - 1];
+    }
+    if (defaultBtn) showSection(defaultBtn.dataset.pickemKey);
+
+    navBtns.forEach(b => b.addEventListener('click', () => showSection(b.dataset.pickemKey)));
+
+    const toast = document.getElementById('pickem-toast');
+    if (toast) setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
+
+    // Update bonus card image + label on select change
+    document.querySelectorAll('.bonus-select').forEach(sel => {
+      sel.addEventListener('change', () => {
+        const card = sel.closest('.bonus-card');
+        const img  = card.querySelector('.bonus-card__img');
+        const cur  = card.querySelector('.bonus-card__current');
+        const opt  = sel.options[sel.selectedIndex];
+        if (opt.value) {
+          img.src = opt.dataset.img || '/assets/img/liga.png';
+          cur.textContent = opt.value;
+        } else {
+          img.src = '/assets/img/liga.png';
+          cur.textContent = '—';
+        }
+      });
+    });
+
+    // Highlight team card on click (before form submit)
+    document.querySelectorAll('.pickem-team--selectable').forEach(label => {
+      label.addEventListener('click', () => {
+        const radio = label.querySelector('input[type=radio]');
+        if (!radio || radio.disabled) return;
+        const groupName = radio.name;
+        document.querySelectorAll(`input[name="${CSS.escape(groupName)}"]`).forEach(r => {
+          r.closest('.pickem-team')?.classList.remove('pickem-team--selected');
+        });
+        label.classList.add('pickem-team--selected');
+      });
+    });
+  </script>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

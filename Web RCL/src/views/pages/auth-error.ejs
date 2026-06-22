@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <%- include('../partials/head', { title }) %>
+    <style>
+      html, body {
+        min-height: 100%;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 16px;
+        background:
+          radial-gradient(circle at top, rgba(103, 0, 253, 0.16), transparent 35%),
+          radial-gradient(circle at bottom right, rgba(228, 252, 28, 0.12), transparent 30%),
+          var(--bg-main);
+      }
+      .auth-error-shell {
+        width: 100%;
+        max-width: 460px;
+        text-align: center;
+      }
+      .auth-error-card {
+        background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 2.5rem 2rem;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+      .auth-error-logo {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto 1.25rem;
+        filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.32));
+      }
+      .auth-error-title {
+        color: #fff;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+      }
+      .auth-error-msg {
+        color: var(--muted);
+        margin-bottom: 1.75rem;
+        line-height: 1.6;
+      }
+      .auth-error-back a {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      .auth-error-back a:hover {
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="auth-error-shell">
+      <section class="auth-error-card">
+        <img class="auth-error-logo" src="/assets/img/liga.png" alt="Logo RCL" />
+        <h1 class="auth-error-title">Acceso denegado</h1>
+        <p class="auth-error-msg">
+          Tu cuenta de Discord no pertenece al servidor de la liga.<br>
+          Solo los miembros del servidor pueden acceder.
+        </p>
+        <a class="button" href="https://discord.gg/NEyYRzCMc8" target="_blank" rel="noreferrer">
+          Unirse al servidor
+        </a>
+        <div class="auth-error-back" style="margin-top:1.25rem;">
+          <a href="/">← Volver a la web</a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

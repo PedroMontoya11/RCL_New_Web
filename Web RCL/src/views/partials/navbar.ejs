@@ -4,7 +4,7 @@
       <a class="navbar-brand" href="/">
         <img src="/assets/img/liga.png" alt="Logo" width="55" height="48" class="rounded-circle">
         <span class="brand-block">
-          <span class="brand-title">RIFT CHAMPIONS LEAGUE</span>
+          <span class="brand-title">REBEL CROWN LEGACY</span>
           <span class="brand-subtitle">Liga amateur de League of Legends</span>
         </span>
       </a>
@@ -21,7 +21,24 @@
           <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/campeones') ? 'active' : '' %>" href="/campeones">Campeones</a></li>
           <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/fails') ? 'active' : '' %>" href="/fails">Highlights</a></li>
           <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/playoffs') ? 'active' : '' %>" href="/playoffs">Playoffs</a></li>
-          <li class="nav-item ms-lg-2"><a class="nav-link discord-link" href="https://discord.gg/NEyYRzCMc8" target="_blank" rel="noreferrer" title="Discord"><img src="/assets/img/discord.svg" alt="Discord" style="height:20px;"></a></li>
+          <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/pickem') ? 'active' : '' %>" href="/pickem">Pick'Em</a></li>
+          <% if (discordUser) { %>
+            <li class="nav-item ms-lg-2 d-flex align-items-center gap-2">
+              <% if (discordUser.avatar) { %>
+                <img src="https://cdn.discordapp.com/avatars/<%= discordUser.discord_id %>/<%= discordUser.avatar %>.png"
+                     width="28" height="28" class="rounded-circle" alt="Avatar">
+              <% } %>
+              <span class="nav-link pe-0" style="color:var(--muted);font-size:0.9rem;"><%= discordUser.username %></span>
+              <a class="nav-link ps-1" href="/auth/logout" title="Cerrar sesión" style="font-size:0.85rem;color:var(--muted);">Salir</a>
+            </li>
+          <% } else { %>
+            <li class="nav-item ms-lg-2">
+              <a class="button button-sm" href="/auth/discord" style="font-size:0.85rem;padding:0.35rem 0.85rem;">
+                <img src="/assets/img/discord.svg" alt="" style="height:16px;margin-right:5px;vertical-align:middle;">Login
+              </a>
+            </li>
+          <% } %>
+          <li class="nav-item ms-lg-1"><a class="nav-link discord-link" href="https://discord.gg/NEyYRzCMc8" target="_blank" rel="noreferrer" title="Servidor Discord"><img src="/assets/img/discord.svg" alt="Discord" style="height:20px;"></a></li>
         </ul>
       </div>
     </div>

@@ -2,6 +2,7 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
+const passport = require('./src/config/passport');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,16 +19,20 @@ app.use(session({
   saveUninitialized: false,
   cookie: { httpOnly: true, sameSite: 'lax' }
 }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use((req, res, next) => {
   res.locals.currentPath = req.path;
   res.locals.adminLoggedIn = !!req.session.adminLoggedIn;
+  res.locals.discordUser = req.user || null;
   res.locals.gaMeasurementId = process.env.GA_MEASUREMENT_ID || '';
   next();
 });
 
 app.use('/', require('./src/routes/publicRoutes'));
 app.use('/admin', require('./src/routes/adminRoutes'));
+app.use('/auth', require('./src/routes/authRoutes'));
 
 app.use((req, res) => {
   res.status(404).render('pages/404', { title: '404' });

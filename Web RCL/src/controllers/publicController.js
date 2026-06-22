@@ -8,7 +8,7 @@ function getDivision(req) {
 async function home(req, res, next) {
   try {
     res.render('pages/index', {
-      title: 'Rift Champions League',
+      title: 'Rebel Crown Legacy',
       featuredVideos: [
         { file: 'Penta de lGengisK.mp4', title: 'Penta de lGengisK' },
         { file: 'Penta de Kento.mp4', title: 'Penta de Kento' },
