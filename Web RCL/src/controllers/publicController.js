@@ -327,7 +327,7 @@ async function campeones(req, res, next) {
       GROUP BY pe.nombre
       ORDER BY ${orderBy}
     `, [division]);
-
+    
 res.render('pages/campeones', 
 {
   title: 'Campeones',
@@ -340,6 +340,7 @@ res.render('pages/campeones',
     next(error);
   }
 }
+
 async function jugadorResumen(req, res, next) {
   try {
     const id = Number(req.params.id);
