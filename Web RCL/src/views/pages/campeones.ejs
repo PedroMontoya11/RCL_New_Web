@@ -3,6 +3,88 @@
 <head>
   <%- include('../partials/head', { title }) %>
   <style>
+    .main-title { text-align: center; font-weight: 800; font-size: 2.5rem; margin-bottom: 1rem; position: relative; }
+    .main-title::after { content: ""; display: block; width: 100px; height: 5px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); margin: 15px auto 0; border-radius: 999px; }
+
+    .sort-form{
+      display:flex;
+      gap:.75rem;
+      margin-left:auto;
+    }
+
+    @media (max-width: 992px){
+      .sort-form{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:1rem;
+      }
+    }
+
+    .champ-search{
+      flex: 1;
+      max-width: 280px;
+    }
+
+    .champ-search-input{
+      height:40px;
+      padding:0 12px;
+
+      border:none;
+      border-radius:12px;
+
+      background:#111;
+      color:#fff;
+
+      outline:none;
+      min-width:200px;
+
+      transition:.2s;
+    }
+
+    .champ-search-input::placeholder{
+      color:rgba(255,255,255,.5);
+    }
+
+    .champ-search-input:focus{
+      background:#1a1a1a;
+      box-shadow:0 0 0 2px rgba(103,0,253,.35);
+    }
+
+    .sort-btn{
+      padding:0 14px;
+      height:40px;
+      min-width:90px;
+
+      border:none;
+      border-radius:12px;
+      background:#111111;
+      cursor:pointer;
+
+      display:flex;
+      justify-content:center;
+      align-items:center;
+
+      color:#fff;
+      font-size:14px;
+      font-weight:500;
+
+      transition:.2s;
+    }
+
+    .sort-btn:hover{
+      background:#1a1a1a;
+    }
+
+    .sort-btn.active{
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      box-shadow:0 0 16px rgba(103,0,253,.45);
+      transform:translateY(-2px);
+    }
+
+    .sort-btn.active:hover{
+      filter:brightness(1.05);
+    }
+
     .champ-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -18,6 +100,7 @@
       display: flex;
       gap: 1rem;
       align-items: center;
+      max-width: 240px;
     }
 
     .champ-card img {
@@ -87,68 +170,50 @@
 
   <section class="page-hero compact">
     <div class="container container-soft">
-
-      <div class="hero-kicker">Meta</div>
-
-      <h1 class="main-title">
-        Campeones jugados - <%= division %>
-      </h1>
-
-      <p class="page-description">
-        Games jugados y winrate por campeón.
-      </p>
+      <h1 class="main-title">Campeones jugados · <%= division %></h1>
+      <p class="page-description">Games jugados y winrate por campeón</p>
 
       <div class="mt-3 d-flex gap-3 flex-wrap justify-content-center align-items-center">
-
         <div class="d-flex gap-2">
-          <a
-            class="btn btn-sm <%= division === 'Primera' ? 'btn-brand' : 'btn-outline-light' %>"
-            href="/campeones?division=Primera&sort=<%= sort || 'nombre' %>"
-          >
-            Primera
-          </a>
-
-          <a
-            class="btn btn-sm <%= division === 'Segunda' ? 'btn-brand' : 'btn-outline-light' %>"
-            href="/campeones?division=Segunda&sort=<%= sort || 'nombre' %>"
-          >
-            Segunda
-          </a>
+          <a class="btn btn-sm division-btn <%= division === 'Primera' ? 'btn-brand' : 'btn-outline-light' %>" href="/campeones?division=Primera&sort=<%= sort || 'nombre' %>">Primera</a>
+          <a class="btn btn-sm division-btn <%= division === 'Segunda' ? 'btn-brand' : 'btn-outline-light' %>" href="/campeones?division=Segunda&sort=<%= sort || 'nombre' %>">Segunda</a>
         </div>
-
-        <form method="GET" action="/campeones" class="sort-form">
-          <input type="hidden" name="division" value="<%= division %>">
-
-          <select
-            name="sort"
-            class="sort-select"
-            onchange="this.form.submit()"
-          >
-            <option value="nombre" <%= sort === 'nombre' ? 'selected' : '' %>>
-              Nombre
-            </option>
-
-            <option value="winrate" <%= sort === 'winrate' ? 'selected' : '' %>>
-              Winrate
-            </option>
-
-            <option value="partidas" <%= sort === 'partidas' ? 'selected' : '' %>>
-              Partidas
-            </option>
-          </select>
-        </form>
-
       </div>
-
     </div>
   </section>
 
   <main class="container container-soft pb-5">
 
+    <section class="filtros pb-3">
+      <div class="mt-3 d-flex gap-3 flex-wrap align-items-center justify-content-between w-100">
+        <div class="champ-search">
+          <input
+            type="text"
+            placeholder="Buscar campeón..."
+            class="champ-search-input"
+          />
+        </div>
+
+        <form method="GET" action="/campeones" class="sort-form">
+          <input type="hidden" name="division" value="<%= division %>">
+          <% ['nombre','winrate','partidas'].forEach(op => { %>
+            <button
+              type="submit"
+              name="sort"
+              value="<%= op %>"
+              class="sort-btn <%= sort === op ? 'active' : '' %>"
+            >
+              <%= op.charAt(0).toUpperCase() + op.slice(1) %>
+            </button>
+          <% }) %>
+        </form>
+      </div>
+    </section>
+
     <div class="champ-grid">
       <% champions.forEach((champ) => { %>
 
-        <article class="champ-card">
+        <article class="champ-card" data-name="<%= champ.nombre.toLowerCase() %>">
 
           <img
             src="/assets/img/champs/<%= slugChampion(champ.nombre) %>.png"
@@ -193,4 +258,23 @@
 
 </div>
 </body>
+
+<script>
+  const input = document.querySelector('.champ-search-input');
+  const cards = document.querySelectorAll('.champ-card');
+
+  input.addEventListener('input', () => {
+    const value = input.value.toLowerCase().trim();
+
+    cards.forEach(card => {
+      const name = (card.dataset.name || '').toLowerCase();
+
+      const match =
+        value === '' ||
+        name.startsWith(value);
+
+      card.style.display = match ? '' : 'none';
+    });
+  });
+</script>
 </html>
