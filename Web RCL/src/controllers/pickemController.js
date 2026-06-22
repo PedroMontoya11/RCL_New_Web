@@ -30,7 +30,7 @@ async function page(req, res, next) {
         ev.nombre       AS visitante,
         p.ganador_id,
         p.resultado,
-        COALESCE(TIMESTAMP(j.fecha, j.hora), j.fecha) < NOW() AS is_locked
+        (COALESCE(TIMESTAMP(j.fecha, j.hora), j.fecha) < NOW() OR p.ganador_id IS NOT NULL) AS is_locked
       FROM jornadas j
       JOIN equipos el ON j.local_id     = el.id_equipo
       JOIN equipos ev ON j.visitante_id = ev.id_equipo
