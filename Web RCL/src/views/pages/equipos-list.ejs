@@ -1,12 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><%- include('../partials/head', { title }) %></head>
+<head>
+  <%- include('../partials/head', { title }) %></head>
+  <style>
+    .main-title { text-align: center; font-weight: 800; font-size: 2.5rem; margin-bottom: 1rem; position: relative; }
+    .main-title::after { content: ""; display: block; width: 100px; height: 5px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); margin: 15px auto 0; border-radius: 999px; }
+
+    .grid-auto{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:1rem;
+    }
+
+    .grid-auto > *{
+      flex:0 0 305px;
+    }
+  </style>
 <body>
 <div class="site-shell">
   <%- include('../partials/navbar') %>
   <section class="page-hero compact">
     <div class="container container-soft">
-      <div class="hero-kicker">Equipos</div>
       <h1 class="main-title">Equipos · <%= division %></h1>
       <p class="page-description">Accede al detalle de cada plantilla y a sus mejores picks.</p>
       <div class="mt-3 d-flex gap-2 flex-wrap justify-content-center">
