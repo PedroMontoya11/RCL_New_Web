@@ -85,9 +85,43 @@
       .team-name { font-size: .78rem; }
       .pickem-team { padding: .65rem .35rem; border-radius: 12px; }
     }
+
+    /* Bonus modal */
+    .bonus-modal-overlay { display:none; position:fixed; inset:0; z-index:1050; background:rgba(0,0,0,.78); align-items:center; justify-content:center; padding:1rem; }
+    .bonus-modal-overlay.open { display:flex; }
+    .bonus-modal { background:#14141e; border:1px solid rgba(255,255,255,.12); border-radius:20px; width:min(700px,95vw); max-height:84vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.85); }
+    .bonus-modal__header { padding:1.25rem 1.5rem; border-bottom:1px solid rgba(255,255,255,.08); display:flex; justify-content:space-between; align-items:flex-start; }
+    .bonus-modal__type { font-size:.68rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:#f5c518; margin-bottom:.25rem; }
+    .bonus-modal__question { font-weight:700; color:#fff; font-size:1rem; margin:0; }
+    .bonus-modal__close { background:none; border:none; color:rgba(255,255,255,.45); font-size:1.6rem; line-height:1; cursor:pointer; padding:0; margin-left:1rem; flex-shrink:0; }
+    .bonus-modal__close:hover { color:#fff; }
+    .bonus-modal__search-wrap { padding:.75rem 1.5rem .5rem; flex-shrink:0; }
+    .bonus-modal__search { width:100%; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:.55rem 1rem; color:#fff; font-size:.9rem; outline:none; }
+    .bonus-modal__search:focus { border-color:rgba(245,197,24,.5); box-shadow:0 0 0 3px rgba(245,197,24,.1); }
+    .bonus-modal__search::placeholder { color:rgba(255,255,255,.3); }
+    .bonus-modal__grid { padding:.5rem 1.5rem .75rem; overflow-y:auto; display:grid; grid-template-columns:repeat(3,1fr); gap:.65rem; }
+    .bonus-option-card { background:rgba(255,255,255,.05); border:2px solid rgba(255,255,255,.08); border-radius:14px; padding:.9rem .6rem .75rem; display:flex; flex-direction:column; align-items:center; gap:.4rem; cursor:pointer; transition:border-color .15s, background .15s, transform .1s; text-align:center; }
+    .bonus-option-card:hover { border-color:rgba(245,197,24,.4); background:rgba(245,197,24,.06); transform:translateY(-2px); }
+    .bonus-option-card.selected { border-color:#f5c518 !important; background:rgba(245,197,24,.14) !important; box-shadow:0 0 18px rgba(245,197,24,.25); }
+    .bonus-option-card.boc-hidden { display:none; }
+    .bonus-option-card__img { width:68px; height:68px; object-fit:cover; border-radius:10px; }
+    .bonus-option-card__name { font-size:.78rem; font-weight:800; color:#fff; line-height:1.2; }
+    .bonus-option-card__sub { font-size:.68rem; font-weight:600; color:rgba(255,255,255,.45); }
+    .bonus-modal__footer { padding:1rem 1.5rem; border-top:1px solid rgba(255,255,255,.08); display:flex; gap:.75rem; justify-content:flex-end; flex-shrink:0; }
+    .bonus-modal__cancel { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15); color:#fff; padding:.65rem 1.5rem; border-radius:999px; font-weight:700; cursor:pointer; }
+    .bonus-modal__confirm { background:linear-gradient(90deg,#f5c518,#f59e0b); color:#000; border:none; padding:.65rem 2rem; border-radius:999px; font-weight:800; cursor:pointer; transition:transform .15s; }
+    .bonus-modal__confirm:hover { transform:translateY(-1px); }
+    .bonus-trigger { width:100%; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15); color:#fff; border-radius:10px; padding:.45rem .75rem; font-size:.8rem; font-weight:700; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:.4rem; transition:border-color .15s; }
+    .bonus-trigger:hover { border-color:#f5c518; }
+    .bonus-trigger__label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; text-align:left; }
+    .bonus-trigger__arrow { opacity:.5; font-size:.7rem; flex-shrink:0; }
+    @media (max-width: 576px) {
+      .bonus-modal__grid { grid-template-columns:repeat(2,1fr); }
+    }
   </style>
 </head>
 <body>
+  <div class="site-shell">
   <%- include('../partials/navbar') %>
   <div class="container py-5">
     <h1 class="main-title">Pick'Em</h1>
@@ -107,10 +141,11 @@
         <% gruposOrder.forEach(function(key) {
              const isPlayoff = isNaN(Number(key));
              const hasOpen   = grupos[key].some(function(m) { return !m.is_locked; });
+             if (!hasOpen) return;
         %>
           <button class="btn jornada-btn <%= isPlayoff ? 'btn-playoffs' : '' %>"
                   data-pickem-key="<%= key %>"
-                  data-has-open="<%= hasOpen ? '1' : '0' %>">
+                  data-has-open="1">
             <%= isPlayoff ? '🏆 ' + key : 'Jornada ' + key %>
           </button>
         <% }); %>
@@ -226,37 +261,24 @@
                  }
                }
           %>
-            <div class="bonus-card" data-type="<%= q.type %>">
+            <div class="bonus-card" data-type="<%= q.type %>" data-qid="<%= q.id %>">
               <div class="bonus-card__imgwrap">
                 <img class="bonus-card__img" src="<%= imgSrc %>"
                      onerror="this.onerror=null;this.src='/assets/img/liga.png'" alt="">
               </div>
               <div class="bonus-card__body">
-                <span class="bonus-card__icon"><%= q.icon %></span>
                 <p class="bonus-card__question"><%= q.label %></p>
                 <p class="bonus-card__current"><%= sel || '—' %></p>
                 <% if (discordUser) { %>
-                  <select name="bonus[q<%= q.id %>]" class="bonus-select"
-                          aria-label="<%= q.label %>">
-                    <option value="">— Elige —</option>
-                    <% if (q.type === 'player') { %>
-                      <% bonusPlayers.forEach(function(p) { %>
-                        <option value="<%= p.nombre_usuario %>"
-                                data-img="<%= teamLogo(p.equipo) %>"
-                                <%= sel === p.nombre_usuario ? 'selected' : '' %>>
-                          <%= p.nombre_usuario %> · <%= p.equipo %>
-                        </option>
-                      <% }); %>
-                    <% } else { %>
-                      <% bonusChampions.forEach(function(c) { %>
-                        <option value="<%= c %>"
-                                data-img="/assets/img/champs/<%= slugChampion(c) %>.png"
-                                <%= sel === c ? 'selected' : '' %>>
-                          <%= c %>
-                        </option>
-                      <% }); %>
-                    <% } %>
-                  </select>
+                  <input type="hidden" name="bonus[q<%= q.id %>]" value="<%= sel %>" data-bonus-qid="<%= q.id %>">
+                  <button type="button" class="bonus-trigger"
+                          data-bonus-trigger="<%= q.id %>"
+                          data-bonus-type="<%= q.type %>"
+                          data-bonus-question="<%= q.label %>"
+                          onclick="openBonusModal(this)">
+                    <span class="bonus-trigger__label"><%= sel || '— Elige —' %></span>
+                    <span class="bonus-trigger__arrow">▾</span>
+                  </button>
                 <% } %>
               </div>
             </div>
@@ -281,6 +303,27 @@
       ✓ Predicciones guardadas
     </div>
   <% } %>
+
+  <!-- Bonus Pick Modal -->
+  <div class="bonus-modal-overlay" id="bonus-modal">
+    <div class="bonus-modal">
+      <div class="bonus-modal__header">
+        <div>
+          <div class="bonus-modal__type" id="bonus-modal-type"></div>
+          <p class="bonus-modal__question" id="bonus-modal-question"></p>
+        </div>
+        <button type="button" class="bonus-modal__close" onclick="closeBonusModal()">×</button>
+      </div>
+      <div class="bonus-modal__search-wrap">
+        <input type="text" class="bonus-modal__search" id="bonus-modal-search" placeholder="Buscar...">
+      </div>
+      <div class="bonus-modal__grid" id="bonus-modal-grid"></div>
+      <div class="bonus-modal__footer">
+        <button type="button" class="bonus-modal__cancel" onclick="closeBonusModal()">Cancelar</button>
+        <button type="button" class="bonus-modal__confirm" onclick="confirmBonusModal()">Cambiar elección</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const navBtns  = Array.from(document.querySelectorAll('[data-pickem-key]'));
@@ -308,21 +351,84 @@
     const toast = document.getElementById('pickem-toast');
     if (toast) setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
 
-    // Update bonus card image + label on select change
-    document.querySelectorAll('.bonus-select').forEach(sel => {
-      sel.addEventListener('change', () => {
-        const card = sel.closest('.bonus-card');
-        const img  = card.querySelector('.bonus-card__img');
-        const cur  = card.querySelector('.bonus-card__current');
-        const opt  = sel.options[sel.selectedIndex];
-        if (opt.value) {
-          img.src = opt.dataset.img || '/assets/img/liga.png';
-          cur.textContent = opt.value;
-        } else {
-          img.src = '/assets/img/liga.png';
-          cur.textContent = '—';
-        }
+    // Bonus pick modal data (pre-computed server-side)
+    const bonusChampData   = <%- JSON.stringify(bonusChampions.map(function(c) { return { name: c, img: '/assets/img/champs/' + slugChampion(c) + '.png' }; })) %>;
+    const bonusPlayerData  = <%- JSON.stringify(bonusPlayers.map(function(p) { return { name: p.nombre_usuario, team: p.equipo, img: teamLogo(p.equipo) }; })) %>;
+
+    let _bActiveQId = null, _bActiveType = null, _bPicked = null;
+
+    function openBonusModal(btn) {
+      const qId     = btn.dataset.bonusTrigger;
+      const type    = btn.dataset.bonusType;
+      const question = btn.dataset.bonusQuestion;
+      _bActiveQId  = qId;
+      _bActiveType = type;
+      _bPicked     = document.querySelector(`[data-bonus-qid="${qId}"]`).value || null;
+
+      document.getElementById('bonus-modal-type').textContent     = type === 'champion' ? 'CAMPEONES' : 'JUGADORES';
+      document.getElementById('bonus-modal-question').textContent = question;
+      document.getElementById('bonus-modal-search').value         = '';
+
+      const grid  = document.getElementById('bonus-modal-grid');
+      grid.innerHTML = '';
+      const items = type === 'champion' ? bonusChampData : bonusPlayerData;
+      items.forEach(function(item) {
+        const card = document.createElement('div');
+        card.className = 'bonus-option-card' + (item.name === _bPicked ? ' selected' : '');
+        card.dataset.value  = item.name;
+        card.dataset.search = (item.name + ' ' + (item.team || '')).toLowerCase();
+        card.innerHTML =
+          `<img class="bonus-option-card__img" src="${item.img}" onerror="this.onerror=null;this.src='/assets/img/liga.png'" alt="${item.name}">` +
+          `<span class="bonus-option-card__name">${item.name}</span>` +
+          (item.team ? `<span class="bonus-option-card__sub">${item.team}</span>` : '');
+        card.addEventListener('click', function() {
+          grid.querySelectorAll('.bonus-option-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          _bPicked = item.name;
+        });
+        grid.appendChild(card);
       });
+
+      document.getElementById('bonus-modal').classList.add('open');
+      setTimeout(function() { document.getElementById('bonus-modal-search').focus(); }, 50);
+    }
+
+    function closeBonusModal() {
+      document.getElementById('bonus-modal').classList.remove('open');
+    }
+
+    function confirmBonusModal() {
+      if (!_bPicked) { closeBonusModal(); return; }
+      const val  = _bPicked;
+      const qId  = _bActiveQId;
+      const type = _bActiveType;
+
+      document.querySelector(`[data-bonus-qid="${qId}"]`).value = val;
+
+      const lbl = document.querySelector(`[data-bonus-trigger="${qId}"] .bonus-trigger__label`);
+      if (lbl) lbl.textContent = val;
+
+      const bonusCard = document.querySelector(`.bonus-card[data-qid="${qId}"]`);
+      if (bonusCard) {
+        const img = bonusCard.querySelector('.bonus-card__img');
+        const cur = bonusCard.querySelector('.bonus-card__current');
+        const item = (type === 'champion' ? bonusChampData : bonusPlayerData).find(i => i.name === val);
+        if (img) img.src = item ? item.img : '/assets/img/liga.png';
+        if (cur) cur.textContent = val;
+      }
+
+      closeBonusModal();
+    }
+
+    document.getElementById('bonus-modal-search').addEventListener('input', function() {
+      const q = this.value.toLowerCase();
+      document.querySelectorAll('#bonus-modal-grid .bonus-option-card').forEach(function(card) {
+        card.classList.toggle('boc-hidden', q.length > 0 && !card.dataset.search.includes(q));
+      });
+    });
+
+    document.getElementById('bonus-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeBonusModal();
     });
 
     // Highlight team card on click (before form submit)
@@ -340,5 +446,6 @@
   </script>
 
   <%- include('../partials/footer') %>
+  </div>
 </body>
 </html>

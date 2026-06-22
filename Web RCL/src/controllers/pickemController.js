@@ -47,7 +47,7 @@ async function page(req, res, next) {
       }
     }
 
-    const PLAYOFF_TEAMS = ['Planar Shock Pingus', 'Mezkos Esports', 'Panda-Kensei', 'Ultimate Morenos'];
+    const PLAYOFF_TEAMS = ['Planar Shock Pingus', 'Mezkos Esports', 'Panda-Kensei', 'Ultimate Morenos', 'FNIX', 'Draconis Aeterni'];
     const teamPlaceholders = PLAYOFF_TEAMS.map(() => '?').join(',');
     const [playerRows] = await db.query(`
       SELECT j.id, j.nombre_usuario, e.nombre AS equipo
@@ -79,6 +79,16 @@ async function page(req, res, next) {
       }
       grupos[key].push(m);
     }
+
+    // Numeric jornadas first (sorted ASC), then playoff stages alphabetically
+    gruposOrder.sort((a, b) => {
+      const aNum = !isNaN(Number(a));
+      const bNum = !isNaN(Number(b));
+      if (aNum && bNum) return Number(a) - Number(b);
+      if (aNum) return -1;
+      if (bNum) return 1;
+      return a.localeCompare(b);
+    });
 
     const hasOpenMatches = matches.some(m => !m.is_locked);
 
